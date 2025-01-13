@@ -3,14 +3,14 @@ package cl.mineduc.sidep.sostenedorapi.services;
 import cl.mineduc.sidep.sostenedorapi.entities.SostenedorEntity;
 import cl.mineduc.sidep.sostenedorapi.enums.Order;
 import cl.mineduc.sidep.sostenedorapi.filter.SostenedorFilter;
+import cl.mineduc.sidep.sostenedorapi.model.PaginationResultModel;
 import cl.mineduc.sidep.sostenedorapi.model.SostenedorModel;
 import cl.mineduc.sidep.sostenedorapi.repositories.SostenedorRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -22,15 +22,28 @@ public class SostenedorServiceImpl implements SostenedorService {
 
     private final SostenedorRepository sostenedorRepository;
 
+    @Transactional(readOnly = true)
     @Override
-    public List<SostenedorModel> findAll(String nombre, String rut, Long calidadJuridica, Long comunda, String orderBy, Order order, Integer page, Integer pageSize) {
+    public PaginationResultModel<SostenedorModel> findAll(String nombre, String rut, Long calidadJuridica, Long comuna, String orderBy, Order order, Integer page, Integer pageSize) {
+
+        if (StringUtils.isBlank(orderBy)) {
+            orderBy = null;
+        }
+
+        if (StringUtils.isBlank(rut)) {
+            rut = null;
+        }
+
+        if (StringUtils.isBlank(nombre)) {
+            nombre = null;
+        }
 
         SostenedorFilter f = SostenedorFilter
                 .builder()
                 .nombre(nombre)
                 .rut(rut)
-                .calidadJuridiad(calidadJuridica)
-                .comuna(comunda)
+                .calidadJuridica(calidadJuridica)
+                .comuna(comuna)
                 .build();
 
         if (page != null) {
@@ -40,16 +53,27 @@ public class SostenedorServiceImpl implements SostenedorService {
             f.setLimit(size);
             f.setOffset(page * size);
         }
-        return this.sostenedorRepository.findAll(f);
+
+        return PaginationResultModel
+                .<SostenedorModel>builder()
+                .resultados(this.sostenedorRepository.findAll(f))
+                .build();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public SostenedorModel findById(Long id) {
-        return null;
+        return this.sostenedorRepository.findById(id);
     }
 
+    @Transactional
     @Override
-    public SostenedorModel save(SostenedorEntity e) {
-        return null;
+    public SostenedorModel save(SostenedorModel m) {
+        SostenedorEntity e = this.toEntity(m);
+        this.sostenedorRepository.save(e);
+
+        m.setId(e.getId());
+
+        return m;
     }
 }

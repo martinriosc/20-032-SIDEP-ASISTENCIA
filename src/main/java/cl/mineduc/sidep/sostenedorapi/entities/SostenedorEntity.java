@@ -9,9 +9,9 @@ public class SostenedorEntity {
 
     private Long id;
     private Long comuna;
-    private Long calidadJurifica;
+    private Long calidadJuridica;
     private String nombre;
-    private String rut;
+    private Integer run;
     private String dv;
     private String direccion;
     private String codigoAreaTelefono;

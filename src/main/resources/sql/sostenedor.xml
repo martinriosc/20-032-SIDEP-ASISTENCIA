@@ -54,9 +54,9 @@
                                 sost_direccion, sost_codigo_area_telefono, sost_telefono, sost_celular, sost_mail,
                                 sost_fecha_creacion)
         VALUES (#{comuna},
-                #{calidadJurifica},
+                #{calidadJuridica},
                 #{nombre},
-                #{rut},
+                #{run},
                 #{dv},
                 #{direccion},
                 #{codigoAreaTelefono},

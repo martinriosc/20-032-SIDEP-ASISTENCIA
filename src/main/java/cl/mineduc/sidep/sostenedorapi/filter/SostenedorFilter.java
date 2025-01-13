@@ -9,7 +9,7 @@ public class SostenedorFilter {
 
     private String nombre;
     private String rut;
-    private Long calidadJuridiad;
+    private Long calidadJuridica;
     private Long comuna;
 
     private String orderBy;
