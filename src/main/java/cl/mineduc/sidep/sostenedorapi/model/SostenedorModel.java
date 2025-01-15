@@ -1,6 +1,5 @@
 package cl.mineduc.sidep.sostenedorapi.model;
 
-import cl.mineduc.sidep.sostenedorapi.annotation.RutConstraint;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
@@ -8,7 +7,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@RutConstraint(message = "Rut no es válido")
 @Data
 public class SostenedorModel {
 

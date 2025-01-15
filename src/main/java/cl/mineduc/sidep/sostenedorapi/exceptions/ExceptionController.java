@@ -1,5 +1,9 @@
 package cl.mineduc.sidep.sostenedorapi.exceptions;
 
+import cl.mineduc.sidep.sostenedorapi.services.ProcesoService;
+import cl.mineduc.sidep.sostenedorapi.utils.ProcesoUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -10,19 +14,21 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 @ResponseBody
 @ControllerAdvice
+@RequiredArgsConstructor
 public class ExceptionController {
+
+    private final ProcesoService procesoService;
 
     @ExceptionHandler(value = SostenedorException.class)
     protected ResponseEntity<Map<String, Object>> handleSostenedorException(SostenedorException e, HttpServletRequest request) {
-        return getMapResponseEntity(request,  e);
 
+        return getMapResponseEntity(request, e);
     }
 
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
@@ -87,6 +93,7 @@ public class ExceptionController {
 
 
     private ResponseEntity<Map<String, Object>> getMapResponseEntity(HttpServletRequest request, Exception e) {
+        this.procesoService.save(ProcesoUtils.getProcesoEntity(HttpStatus.OK.value(), ProcesoUtils.getOperacion(request.getMethod(), request.getRequestURI()), e.getMessage()));
         Map<String, Object> response = new HashMap<>();
         response.put("error", e.getMessage());
         response.put("timestamp", LocalDateTime.now());

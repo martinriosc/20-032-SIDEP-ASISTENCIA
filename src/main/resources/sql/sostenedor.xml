@@ -17,8 +17,8 @@
         <result property="fechaCreacion" column="sost_fecha_creacion"/>
         <result property="fechaActualizacion" column="sost_fecha_actualizacion"/>
         <association property="comuna" javaType="cl.mineduc.sidep.sostenedorapi.model.ComunaModel">
-            <id property="id" column="pk_comu_id_comuna" />
-            <result  property="nombre" column="comu_nombre"/>
+            <id property="id" column="pk_comu_id_comuna"/>
+            <result property="nombre" column="comu_nombre"/>
         </association>
         <association property="calidadJuridica" javaType="cl.mineduc.sidep.sostenedorapi.model.CalidadJuridica">
             <id property="id" column="pk_caju_id_calidad_juridica"/>
@@ -43,8 +43,8 @@
                s.sost_fecha_creacion,
                s.sost_fecha_actualizacion
         FROM sostenedor s
-                 INNER JOIN comuna c ON c.pk_comu_id_comuna = s.fk_sost_id_comuna
-                 INNER JOIN calidad_juridica j on j.pk_caju_id_calidad_juridica = s.fk_sost_id_calidad_juridica
+                 LEFT JOIN comuna c ON c.pk_comu_id_comuna = s.fk_sost_id_comuna
+                 LEFT JOIN calidad_juridica j on j.pk_caju_id_calidad_juridica = s.fk_sost_id_calidad_juridica
     </sql>
 
     <insert id="insert"
@@ -65,10 +65,27 @@
                 #{mail},
                 current_timestamp)
     </insert>
+    <update id="updateSostenedor">
+        UPDATE sostenedor
+        SET fk_sost_id_comuna         = #{s.comuna},
+            sost_nombre               = #{s.nombre},
+            sost_direccion            = #{s.direccion},
+            sost_codigo_area_telefono = #{s.codigoAreaTelefono},
+            sost_telefono             = #{s.telefono},
+            sost_celular              = #{s.celular},
+            sost_mail                 = #{s.mail},
+            sost_fecha_actualizacion  = current_timestamp
+        WHERE pk_sost_id_sostenedor = #{id}
+    </update>
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE
+        FROM sostenedor
+        WHERE pk_sost_id_sostenedor = #{id}
+    </delete>
 
     <select id="findAll" resultMap="sostenedor" parameterType="cl.mineduc.sidep.sostenedorapi.filter.SostenedorFilter">
 
-        <include refid="selectSostenedor" />
+        <include refid="selectSostenedor"/>
         WHERE true
         <if test="comuna != null">
             AND c.pk_comu_id_comuna = #{comuna}
@@ -82,7 +99,7 @@
         <if test="rut != null">
             AND UPPER(s.sost_rut) LIKE UPPER(#{rut})
         </if>
-        <if test="orderBy != null" >
+        <if test="orderBy != null">
             ORDER BY #{orderBy} #{order}
         </if>
         <if test="limit != null">
@@ -91,10 +108,25 @@
     </select>
 
     <select id="findById" resultMap="sostenedor" parameterType="java.lang.Long">
+        <include refid="selectSostenedor"/>
+        WHERE s.pk_sost_id_sostenedor = #{id}
 
-        <include refid="selectSostenedor" />
-        WHERE c.id = #{id}
+    </select>
 
+    <select id="existsByRut" resultType="java.lang.Boolean">
+        SELECT CASE
+                   WHEN COUNT(s.pk_sost_id_sostenedor) > 0 THEN 1
+                   ELSE 0
+                   END result
+        FROM sostenedor s
+        WHERE s.sost_rut = #{rut}
+          AND s.sost_dv = #{dv}
+    </select>
+
+    <select id="hasUnidadEducativa" resultType="java.lang.Boolean">
+        SELECT CASE WHEN COUNT(fk_uned_id_sostenedor) > 0 THEN 1 ELSE 0 END AS result
+        FROM unidad_educativa
+        WHERE fk_uned_id_sostenedor = #{id}
     </select>
 
 </mapper>

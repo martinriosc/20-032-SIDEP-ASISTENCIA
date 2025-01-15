@@ -15,4 +15,12 @@ public interface SostenedorMapper {
 
     Long insert(SostenedorEntity entity);
 
+    Boolean existsByRut(@Param("rut") Integer rut, @Param("dv") String dv);
+
+    void updateSostenedor(@Param("s") SostenedorEntity entity, @Param("id") Long id);
+
+    Boolean hasUnidadEducativa(@Param("id") Long id);
+
+    void delete(@Param("id") Long id);
+
 }

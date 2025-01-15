@@ -2,6 +2,7 @@ package cl.mineduc.sidep.sostenedorapi.services;
 
 import cl.mineduc.sidep.sostenedorapi.entities.SostenedorEntity;
 import cl.mineduc.sidep.sostenedorapi.enums.Order;
+import cl.mineduc.sidep.sostenedorapi.exceptions.SostenedorException;
 import cl.mineduc.sidep.sostenedorapi.filter.SostenedorFilter;
 import cl.mineduc.sidep.sostenedorapi.model.PaginationResultModel;
 import cl.mineduc.sidep.sostenedorapi.model.SostenedorModel;
@@ -25,7 +26,6 @@ public class SostenedorServiceImpl implements SostenedorService {
     @Transactional(readOnly = true)
     @Override
     public PaginationResultModel<SostenedorModel> findAll(String nombre, String rut, Long calidadJuridica, Long comuna, String orderBy, Order order, Integer page, Integer pageSize) {
-
         if (StringUtils.isBlank(orderBy)) {
             orderBy = null;
         }
@@ -66,9 +66,24 @@ public class SostenedorServiceImpl implements SostenedorService {
         return this.sostenedorRepository.findById(id);
     }
 
-    @Transactional
     @Override
     public SostenedorModel save(SostenedorModel m) {
+
+        Integer rut = m.getRut();
+        String dv = m.getDv();
+
+        if (!this.validaRut(String.valueOf(rut), dv)) {
+            log.error("RUN inválido {} - {}", m.getRut(), m.getDv());
+            throw new SostenedorException(String.format("Error al guardar sostenedor, RUN inválido %s-%s", rut, dv));
+            // ToDo: send logs to database
+        }
+
+        if (this.sostenedorRepository.existsByRut(rut, dv)) {
+            log.error("RUN {} - {} existente", rut, dv);
+            throw new SostenedorException(String.format("Error al guardar sostenedor, RUN %s-%s ya existe", rut, dv));
+            // ToDo: send logs to database
+        }
+
         SostenedorEntity e = this.toEntity(m);
         this.sostenedorRepository.save(e);
 
@@ -76,4 +91,34 @@ public class SostenedorServiceImpl implements SostenedorService {
 
         return m;
     }
+
+    @Override
+    public SostenedorModel update(SostenedorModel m, Long id) {
+
+        if (this.sostenedorRepository.findById(id) == null) {
+            log.error("No es posible actualizar, Sostenedor de ID {} no encontrado", id);
+            throw new SostenedorException("No es posible actualizar, Sostenedor de ID " + id);
+            // ToDo: send logs to database
+        }
+
+        SostenedorEntity e = this.toEntity(m);
+        this.sostenedorRepository.update(e, id);
+
+        return m;
+    }
+
+    @Override
+    public void delete(Long id) {
+
+        Boolean hasUnidad = this.sostenedorRepository.hasUnidadEducativa(id);
+
+        if (hasUnidad != null && hasUnidad) {
+            log.error("No es posible eliminar sostenedor de {}, está asociado a una unidad educativa", id);
+            throw new SostenedorException(String.format("No es posible eliminar Sostenedor id: %s. Está asociado a una unidad educativa", id));
+            // ToDo: send logs to database
+        }
+
+        this.sostenedorRepository.delete(id);
+    }
+
 }

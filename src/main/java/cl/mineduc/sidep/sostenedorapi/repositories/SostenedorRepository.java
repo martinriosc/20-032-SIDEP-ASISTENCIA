@@ -14,4 +14,12 @@ public interface SostenedorRepository {
 
     void save(SostenedorEntity e);
 
+    Boolean existsByRut(Integer rut, String dv);
+
+    void update(SostenedorEntity e, Long id);
+
+    Boolean hasUnidadEducativa(Long id);
+
+    void delete(Long id);
+
 }

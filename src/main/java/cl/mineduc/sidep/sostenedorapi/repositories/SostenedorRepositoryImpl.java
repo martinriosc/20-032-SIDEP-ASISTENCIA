@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class SostenedorRepositoryImpl implements SostenedorRepository {
         }
     }
 
+    @Transactional
     @Override
     public void save(SostenedorEntity e) {
         try {
@@ -47,6 +49,50 @@ public class SostenedorRepositoryImpl implements SostenedorRepository {
         } catch (DataAccessException ex){
             log.error(ex.getMessage());
             throw new SostenedorException("Error al guardar sostenedor", ex);
+        }
+    }
+
+    @Transactional
+    @Override
+    public Boolean existsByRut(Integer rut, String dv) {
+        try {
+            return this.sostenedorMapper.existsByRut(rut, dv);
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+            throw new SostenedorException("Error al verificar si existe un sostenedor con RUT " + rut, e);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void update(SostenedorEntity e, Long id) {
+        try {
+            this.sostenedorMapper.updateSostenedor(e, id);
+        } catch (DataAccessException ex){
+            log.error(ex.getMessage());
+            throw new SostenedorException("Error al actualizar sostenedor", ex);
+        }
+    }
+
+    @Transactional
+    @Override
+    public Boolean hasUnidadEducativa(Long id) {
+        try {
+            return this.sostenedorMapper.hasUnidadEducativa(id);
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+            throw new SostenedorException("Error al verificar si existe en unidad educativa", e);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void delete(Long id) {
+        try {
+            this.sostenedorMapper.delete(id);
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+            throw new SostenedorException("Error al borrar sostenedor", e);
         }
     }
 }
