@@ -23,4 +23,6 @@ public interface SostenedorMapper {
 
     void delete(@Param("id") Long id);
 
+    Long countTotal(SostenedorFilter filter);
+
 }

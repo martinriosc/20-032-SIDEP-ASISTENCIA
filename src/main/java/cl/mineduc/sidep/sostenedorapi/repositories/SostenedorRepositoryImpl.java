@@ -95,4 +95,14 @@ public class SostenedorRepositoryImpl implements SostenedorRepository {
             throw new SostenedorException("Error al borrar sostenedor", e);
         }
     }
+
+    @Override
+    public Long countTotal(SostenedorFilter filter) {
+        try {
+            return this.sostenedorMapper.countTotal(filter);
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+            throw new SostenedorException("Error al obtener total de Registros", e);
+        }
+    }
 }

@@ -22,4 +22,6 @@ public interface SostenedorRepository {
 
     void delete(Long id);
 
+    Long countTotal(SostenedorFilter filter);
+
 }

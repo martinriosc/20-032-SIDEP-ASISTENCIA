@@ -107,6 +107,29 @@
         </if>
     </select>
 
+    <select id="countTotal" parameterType="cl.mineduc.sidep.sostenedorapi.filter.SostenedorFilter" resultType="java.lang.Long">
+        SELECT count(s.pk_sost_id_sostenedor) as result
+            FROM sostenedor s
+            LEFT JOIN comuna c ON c.pk_comu_id_comuna = s.fk_sost_id_comuna
+            LEFT JOIN calidad_juridica j on j.pk_caju_id_calidad_juridica = s.fk_sost_id_calidad_juridica
+        WHERE true
+        <if test="comuna != null">
+            AND c.pk_comu_id_comuna = #{comuna}
+        </if>
+        <if test="calidadJuridica != null">
+            AND j.pk_caju_id_calidad_juridica = #{calidadJuridica}
+        </if>
+        <if test="nombre != null">
+            AND UPPER(s.sost_nombre) LIKE UPPER(#{nombre})
+        </if>
+        <if test="rut != null">
+            AND UPPER(s.sost_rut) LIKE UPPER(#{rut})
+        </if>
+        <if test="orderBy != null">
+            ORDER BY #{orderBy} #{order}
+        </if>
+    </select>
+
     <select id="findById" resultMap="sostenedor" parameterType="java.lang.Long">
         <include refid="selectSostenedor"/>
         WHERE s.pk_sost_id_sostenedor = #{id}

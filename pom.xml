@@ -179,6 +179,11 @@
                 <version>0.8.12</version>
                 <configuration>
                     <excludes>
+                        <exclude>cl/mineduc/sidep/sostenedorapi/resources/**</exclude>
+                        <exclude>cl/mineduc/sidep/sostenedorapi/config/**</exclude>
+                        <exclude>cl/mineduc/sidep/sostenedorapi/model/**</exclude>
+                        <exclude>cl/mineduc/sidep/sostenedorapi/entities/**</exclude>
+                        <exclude>cl/mineduc/sidep/sostenedorapi/filter/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

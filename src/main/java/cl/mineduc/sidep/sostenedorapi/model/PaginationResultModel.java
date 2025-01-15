@@ -11,7 +11,7 @@ public class PaginationResultModel<T> {
 
 
     private Long totalElementos;
-    private Integer totalPaginas;
+    private Long totalPaginas;
     private List<T> resultados;
 
 

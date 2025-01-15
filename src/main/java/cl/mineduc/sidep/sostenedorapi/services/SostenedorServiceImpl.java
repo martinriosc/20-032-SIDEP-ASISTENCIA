@@ -13,6 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -54,9 +56,14 @@ public class SostenedorServiceImpl implements SostenedorService {
             f.setOffset(page * size);
         }
 
+        List<SostenedorModel> result = this.sostenedorRepository.findAll(f);
+        Long total = this.sostenedorRepository.countTotal(f);
+
         return PaginationResultModel
                 .<SostenedorModel>builder()
-                .resultados(this.sostenedorRepository.findAll(f))
+                .resultados(result)
+                .totalElementos(total)
+                .totalPaginas(total / result.size() + ((total % result.size() == 0) ? 0 : 1))
                 .build();
     }
 
