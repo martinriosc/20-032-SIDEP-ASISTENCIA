@@ -12,7 +12,7 @@ public class ProcesoUtils {
         return String.format("%s - %s", method, uri);
     }
 
-    public static ProcesoEntity getProcesoEntity(Integer status, String mensaje, String operacion) {
+    public static ProcesoEntity getProcesoEntity(Integer status, String operacion, String mensaje) {
         return ProcesoEntity
                 .builder()
                 .status(status)
