@@ -5,8 +5,6 @@ import cl.mineduc.sidep.sostenedorapi.utils.ProcesoUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -62,35 +60,6 @@ public class ExceptionController {
 
         return ResponseEntity.badRequest().body(finalMap);
     }
-
-    @ExceptionHandler(value = BindException.class)
-    protected ResponseEntity<Map<String, Object>> handlerBindExcption(HttpServletRequest request, BindException e) {
-        ResponseEntity<Map<String, Object>> response = getMapResponseEntity(request, e);
-        Map<String, Object> map = response.getBody();
-
-        if (map == null) {
-            map = new HashMap<>();
-        }
-
-        Map<String, Object> finalMap = map;
-        Map<String, String> errors = new HashMap<>();
-
-        finalMap.remove("error");
-
-        e.getBindingResult()
-                .getAllErrors()
-                .forEach(error -> {
-                    String fieldName = ((FieldError) error).getField();
-                    String errorMessage = error.getDefaultMessage();
-                    errors.put(fieldName, errorMessage);
-                });
-
-        finalMap.put("error", errors);
-
-        return ResponseEntity.badRequest().body(finalMap);
-
-    }
-
 
     private ResponseEntity<Map<String, Object>> getMapResponseEntity(HttpServletRequest request, Exception e) {
         this.procesoService.save(ProcesoUtils.getProcesoEntity(HttpStatus.OK.value(), ProcesoUtils.getOperacion(request.getMethod(), request.getRequestURI()), e.getMessage()));

@@ -5,6 +5,7 @@ import cl.mineduc.sidep.sostenedorapi.exceptions.SidepException;
 import cl.mineduc.sidep.sostenedorapi.mappers.ProcesoMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +20,7 @@ public class ProcesoRepositoryImpl implements ProcesoRepository {
     public void save(ProcesoEntity e) {
         try {
             this.procesoMapper.save(e);
-        } catch (DataAccessException ex) {
+        } catch (MyBatisSystemException ex) {
             log.error(ex.getMessage());
             throw new SidepException("Error al save proceso", ex);
         }

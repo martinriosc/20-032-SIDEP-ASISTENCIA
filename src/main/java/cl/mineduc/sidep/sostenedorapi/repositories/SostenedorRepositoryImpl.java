@@ -7,6 +7,7 @@ import cl.mineduc.sidep.sostenedorapi.mappers.SostenedorMapper;
 import cl.mineduc.sidep.sostenedorapi.model.SostenedorModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +25,7 @@ public class SostenedorRepositoryImpl implements SostenedorRepository {
     public List<SostenedorModel> findAll(SostenedorFilter filter) {
         try {
             return this.sostenedorMapper.findAll(filter);
-        } catch (DataAccessException e) {
+        } catch (MyBatisSystemException e) {
             log.error(e.getMessage());
             throw new SostenedorException("Error al obtener sostenedores", e);
         }
@@ -34,7 +35,7 @@ public class SostenedorRepositoryImpl implements SostenedorRepository {
     public SostenedorModel findById(Long id) {
         try {
             return this.sostenedorMapper.findById(id);
-        } catch (DataAccessException e) {
+        } catch (MyBatisSystemException e) {
             log.error(e.getMessage());
             throw new SostenedorException("Error al obtener sostenedor", e);
         }
@@ -46,7 +47,7 @@ public class SostenedorRepositoryImpl implements SostenedorRepository {
         try {
             Long id = this.sostenedorMapper.insert(e);
             e.setId(id);
-        } catch (DataAccessException ex){
+        } catch (MyBatisSystemException ex){
             log.error(ex.getMessage());
             throw new SostenedorException("Error al guardar sostenedor", ex);
         }
@@ -57,7 +58,7 @@ public class SostenedorRepositoryImpl implements SostenedorRepository {
     public Boolean existsByRut(Integer rut, String dv) {
         try {
             return this.sostenedorMapper.existsByRut(rut, dv);
-        } catch (DataAccessException e) {
+        } catch (MyBatisSystemException e) {
             log.error(e.getMessage());
             throw new SostenedorException("Error al verificar si existe un sostenedor con RUT " + rut, e);
         }
@@ -68,7 +69,7 @@ public class SostenedorRepositoryImpl implements SostenedorRepository {
     public void update(SostenedorEntity e, Long id) {
         try {
             this.sostenedorMapper.updateSostenedor(e, id);
-        } catch (DataAccessException ex){
+        } catch (MyBatisSystemException ex){
             log.error(ex.getMessage());
             throw new SostenedorException("Error al actualizar sostenedor", ex);
         }
@@ -79,7 +80,7 @@ public class SostenedorRepositoryImpl implements SostenedorRepository {
     public Boolean hasUnidadEducativa(Long id) {
         try {
             return this.sostenedorMapper.hasUnidadEducativa(id);
-        } catch (DataAccessException e) {
+        } catch (MyBatisSystemException e) {
             log.error(e.getMessage());
             throw new SostenedorException("Error al verificar si existe en unidad educativa", e);
         }
@@ -90,7 +91,7 @@ public class SostenedorRepositoryImpl implements SostenedorRepository {
     public void delete(Long id) {
         try {
             this.sostenedorMapper.delete(id);
-        } catch (DataAccessException e) {
+        } catch (MyBatisSystemException e) {
             log.error(e.getMessage());
             throw new SostenedorException("Error al borrar sostenedor", e);
         }
@@ -100,7 +101,7 @@ public class SostenedorRepositoryImpl implements SostenedorRepository {
     public Long countTotal(SostenedorFilter filter) {
         try {
             return this.sostenedorMapper.countTotal(filter);
-        } catch (DataAccessException e) {
+        } catch (MyBatisSystemException e) {
             log.error(e.getMessage());
             throw new SostenedorException("Error al obtener total de Registros", e);
         }
