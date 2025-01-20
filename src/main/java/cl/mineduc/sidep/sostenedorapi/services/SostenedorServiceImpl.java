@@ -59,6 +59,11 @@ public class SostenedorServiceImpl implements SostenedorService {
         List<SostenedorModel> result = this.sostenedorRepository.findAll(f);
         Long total = this.sostenedorRepository.countTotal(f);
 
+        if (result == null || result.isEmpty()) {
+            return PaginationResultModel.nullResult();
+        }
+
+
         return PaginationResultModel
                 .<SostenedorModel>builder()
                 .resultados(result)
