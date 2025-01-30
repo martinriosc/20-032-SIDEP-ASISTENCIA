@@ -8,6 +8,7 @@ RUN mkdir -p /api-sidep-sostenedor/logs/
 ADD api-sidep-sostenedor.jar /api-sidep-sostenedor/lib/app.jar
 ADD bootstrap.yml /api-sidep-sostenedor/config
 ADD logback.xml /api-sidep-sostenedor/config
+ADD application-api-sidep-sostenedor-messages.properties /api-sidep-sostenedor/config
 WORKDIR /reconocimiento-oficial-interno-frontend
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","lib/app.jar"]
 EXPOSE 8080
