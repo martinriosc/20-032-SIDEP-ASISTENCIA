@@ -1,6 +1,6 @@
 spring:
   application:
-    name: sidep-sostenedor-api
+    name: api-sidep-sostenedor
   cloud:
     config:
       failFast: true
