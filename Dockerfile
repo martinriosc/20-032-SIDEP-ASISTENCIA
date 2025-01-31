@@ -9,8 +9,8 @@ ADD api-sidep-sostenedor.jar /api-sidep-sostenedor/lib/app.jar
 ADD bootstrap.yml /api-sidep-sostenedor/config
 ADD logback.xml /api-sidep-sostenedor/config
 ADD application-api-sidep-sostenedor-messages.properties /api-sidep-sostenedor/config
-WORKDIR /reconocimiento-oficial-interno-frontend
+WORKDIR /api-sidep-sostenedor
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","lib/app.jar"]
-EXPOSE 8080
+EXPOSE 9301
 HEALTHCHECK --interval=2s --retries=15 --timeout=2s --start-period=8s
 CMD curl --connect-timeout 1 -f http://127.0.0.1:9221/api-sidep-sostenedor
