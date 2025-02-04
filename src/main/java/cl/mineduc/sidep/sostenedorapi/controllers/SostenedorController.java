@@ -62,12 +62,13 @@ public class SostenedorController {
         return ResponseEntity.ok(response);
     }
 
+    /*
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") Long id, HttpServletRequest request) {
         this.sostenedorService.delete(id);
         this.procesoService.save(ProcesoUtils.getProcesoEntity(HttpStatus.NO_CONTENT.value(), ProcesoUtils.getOperacion(request.getMethod(), request.getRequestURI()), OK));
         return ResponseEntity.noContent().build();
     }
-
+    */
 
 }

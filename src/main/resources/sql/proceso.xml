@@ -4,7 +4,6 @@
 
 <mapper namespace="cl.mineduc.sidep.sostenedorapi.mappers.ProcesoMapper">
 
-
     <insert id="save"
             parameterType="cl.mineduc.sidep.sostenedorapi.entities.ProcesoEntity"
             useGeneratedKeys="true"

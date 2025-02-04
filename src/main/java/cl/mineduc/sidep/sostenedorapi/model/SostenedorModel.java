@@ -27,7 +27,7 @@ public class SostenedorModel {
     private String telefono;
     private String celular;
 
-    @Email
+    @Email(message = "Debe ser un mail válido")
     private String mail;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
