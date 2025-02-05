@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="cl.mineduc.sidep.sostenedorapi.mappers.SostenedorMapper">
+<mapper namespace="cl.mineduc.sidep.asistenciaapi.mappers.SostenedorMapper">
 
-    <resultMap id="sostenedor" type="cl.mineduc.sidep.sostenedorapi.model.SostenedorModel">
+    <resultMap id="sostenedor" type="cl.mineduc.sidep.asistenciaapi.model.SostenedorModel">
         <id property="id" column="pk_sost_id_sostenedor"/>
         <result property="nombre" column="sost_nombre"/>
         <result property="rut" column="sost_rut"/>
@@ -16,11 +16,11 @@
         <result property="mail" column="sost_mail"/>
         <result property="fechaCreacion" column="sost_fecha_creacion"/>
         <result property="fechaActualizacion" column="sost_fecha_actualizacion"/>
-        <association property="comuna" javaType="cl.mineduc.sidep.sostenedorapi.model.ComunaModel">
+        <association property="comuna" javaType="cl.mineduc.sidep.asistenciaapi.model.ComunaModel">
             <id property="id" column="pk_comu_id_comuna"/>
             <result property="nombre" column="comu_nombre"/>
         </association>
-        <association property="calidadJuridica" javaType="cl.mineduc.sidep.sostenedorapi.model.CalidadJuridica">
+        <association property="calidadJuridica" javaType="cl.mineduc.sidep.asistenciaapi.model.CalidadJuridica">
             <id property="id" column="pk_caju_id_calidad_juridica"/>
             <result property="nombre" column="caju_nombre"/>
         </association>
@@ -49,7 +49,7 @@
 
     <insert id="insert"
             useGeneratedKeys="true" keyProperty="id" keyColumn="pk_sost_id_sostenedor"
-            parameterType="cl.mineduc.sidep.sostenedorapi.entities.SostenedorEntity">
+            parameterType="cl.mineduc.sidep.asistenciaapi.entities.SostenedorEntity">
         INSERT INTO sostenedor (fk_sost_id_comuna, fk_sost_id_calidad_juridica, sost_nombre, sost_rut, sost_dv,
                                 sost_direccion, sost_codigo_area_telefono, sost_telefono, sost_celular, sost_mail,
                                 sost_fecha_creacion)
@@ -83,7 +83,7 @@
         WHERE pk_sost_id_sostenedor = #{id}
     </delete>
 
-    <select id="findAll" resultMap="sostenedor" parameterType="cl.mineduc.sidep.sostenedorapi.filter.SostenedorFilter">
+    <select id="findAll" resultMap="sostenedor" parameterType="cl.mineduc.sidep.asistenciaapi.filter.SostenedorFilter">
 
         <include refid="selectSostenedor"/>
         WHERE trune
@@ -107,7 +107,7 @@
         </if>
     </select>
 
-    <select id="countTotal" parameterType="cl.mineduc.sidep.sostenedorapi.filter.SostenedorFilter" resultType="java.lang.Long">
+    <select id="countTotal" parameterType="cl.mineduc.sidep.asistenciaapi.filter.SostenedorFilter" resultType="java.lang.Long">
         SELECT count(s.pk_sost_id_sostenedor) as result
             FROM sostenedor s
             LEFT JOIN comuna c ON c.pk_comu_id_comuna = s.fk_sost_id_comuna

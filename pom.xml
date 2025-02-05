@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>cl.mineduc.sidep</groupId>
-    <artifactId>sostenedor-api</artifactId>
+    <artifactId>asistencia-api</artifactId>
     <version>1.0.0</version>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
