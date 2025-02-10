@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cl.mineduc.sidep.asistenciaapi.mappers.UnidadEducativaMapper">
+
+    <!--
+        resultMap para mapear la tabla unidad_educativa a
+        cl.mineduc.sidep.asistenciaapi.model.UnidadEducativaModel (ajustar nombre de la clase según corresponda)
+    -->
+    <resultMap id="unidadEducativaResultMap" type="cl.mineduc.sidep.asistenciaapi.model.UnidadEducativaModel">
+        <!-- Llave primaria -->
+        <id property="id" column="pk_uned_id_unidad_educativa" />
+
+        <!-- Campos directos de la tabla -->
+        <result property="nombre" column="uned_nombre" />
+        <result property="rbd" column="uned_rbd" />
+        <result property="dvRbd" column="uned_dv_rbd" />
+        <result property="dependencia" column="uned_dependencia" />
+        <result property="sitioWeb" column="uned_sitio_web" />
+        <result property="softwarePropio" column="uned_software_propio" />
+        <result property="autorizaIntercambioCorreo" column="uned_autoriza_intercambio_correo" />
+        <result property="codigoAreaTelefono" column="ue_codigo_area_telefono" />
+        <result property="telefono" column="uned_telefono" />
+        <result property="celular" column="uned_celular" />
+        <result property="mail" column="uned_mail" />
+        <result property="resolucion" column="uned_resolucion" />
+        <result property="fechaResolucion" column="uned_fecha_resolucion" />
+        <result property="codigoInstitucion" column="uned_codigo_institucion" />
+        <result property="fechaInicioRo" column="uned_fecha_inicio_ro" />
+        <result property="fechaTerminoRo" column="uned_fecha_termino_ro" />
+        <result property="fechaCreacion" column="uned_fecha_creacion" />
+        <result property="fechaActualizacion" column="uned_fecha_actualizacion" />
+
+        <!-- Associations (llaves foráneas) -->
+        <!-- Suponiendo que existen Programas, Modalidad, etc. con sus propios Model -->
+        <association property="programa" javaType="cl.mineduc.sidep.asistenciaapi.model.ProgramaModel">
+            <id property="id" column="pk_prog_id_programa" />
+            <!-- Ejemplo de alguna otra columna de programa (ajustar según la tabla real) -->
+            <result property="nombre" column="prog_nombre" />
+        </association>
+
+        <association property="modalidad" javaType="cl.mineduc.sidep.asistenciaapi.model.ModalidadModel">
+            <id property="id" column="pk_moda_id_modalidad" />
+            <!-- Ajustar las columnas reales de la tabla modalidad -->
+            <result property="nombre" column="moda_nombre" />
+        </association>
+
+        <association property="mecanismoFinanciamiento" javaType="cl.mineduc.sidep.asistenciaapi.model.MecanismoFinanciamientoModel">
+            <id property="id" column="pk_mefi_id_mecanismo_financiamiento" />
+            <result property="nombre" column="mefi_nombre" />
+        </association>
+
+        <association property="sostenedor" javaType="cl.mineduc.sidep.asistenciaapi.model.SostenedorModel">
+            <id property="id" column="pk_sost_id_sostenedor" />
+            <result property="nombre" column="sost_nombre" />
+        </association>
+
+        <association property="estadoUnidadEducativa" javaType="cl.mineduc.sidep.asistenciaapi.model.EstadoUnidadEducativaModel">
+            <id property="id" column="pk_eued_id_estado_unidad_educativa" />
+            <result property="nombre" column="eued_nombre" />
+        </association>
+
+        <association property="genero" javaType="cl.mineduc.sidep.asistenciaapi.model.GeneroModel">
+            <id property="id" column="pk_gener_id_genero" />
+            <result property="nombre" column="gener_nombre" />
+        </association>
+
+        <association property="estadoFuncionamientoEnsenianza" javaType="cl.mineduc.sidep.asistenciaapi.model.EstadoFuncionamientoEnsenianzaModel">
+            <id property="id" column="pk_efen_id_estado_funcionamiento_ensenianza" />
+            <result property="nombre" column="efen_nombre" />
+        </association>
+    </resultMap>
+
+    <!-- SQL reusable para SELECT principal -->
+    <sql id="selectUnidadEducativa">
+        SELECT
+            ue.pk_uned_id_unidad_educativa,
+            ue.uned_nombre,
+            ue.uned_rbd,
+            ue.uned_dv_rbd,
+            ue.uned_dependencia,
+            ue.uned_sitio_web,
+            ue.uned_software_propio,
+            ue.uned_autoriza_intercambio_correo,
+            ue.ue_codigo_area_telefono,
+            ue.uned_telefono,
+            ue.uned_celular,
+            ue.uned_mail,
+            ue.uned_resolucion,
+            ue.uned_fecha_resolucion,
+            ue.uned_codigo_institucion,
+            ue.uned_fecha_inicio_ro,
+            ue.uned_fecha_termino_ro,
+            ue.uned_fecha_creacion,
+            ue.uned_fecha_actualizacion,
+
+            -- Programas
+            p.pk_prog_id_programa,
+            p.prog_nombre,
+
+            -- Modalidad
+            m.pk_moda_id_modalidad,
+            m.moda_nombre,
+
+            -- Mecanismo Financiamiento
+            mf.pk_mefi_id_mecanismo_financiamiento,
+            mf.mefi_nombre,
+
+            -- Sostenedor
+            s.pk_sost_id_sostenedor,
+            s.sost_nombre,
+
+            -- Estado Unidad Educativa
+            eue.pk_eued_id_estado_unidad_educativa,
+            eue.eued_nombre,
+
+            -- Genero
+            g.pk_gener_id_genero,
+            g.gener_nombre,
+
+            -- Estado Funcionamiento Enseñanza
+            efe.pk_efen_id_estado_funcionamiento_ensenianza,
+            efe.efen_nombre
+
+        FROM unidad_educativa ue
+                 LEFT JOIN programa p ON p.pk_prog_id_programa = ue.fk_uned_id_programa
+                 LEFT JOIN modalidad m ON m.pk_moda_id_modalidad = ue.fk_ue_id_modalidad
+                 LEFT JOIN mecanismo_financiamiento mf ON mf.pk_mefi_id_mecanismo_financiamiento = ue.fk_uned_id_mecanismo_financiamiento
+                 LEFT JOIN sostenedor s ON s.pk_sost_id_sostenedor = ue.fk_uned_id_sostenedor
+                 LEFT JOIN estado_unidad_educativa eue ON eue.pk_eued_id_estado_unidad_educativa = ue.fk_uned_id_estado_unidad_educativa
+                 LEFT JOIN genero g ON g.pk_gener_id_genero = ue.fk_uned_id_genero
+                 LEFT JOIN estado_funcionamiento_ensenianza efe ON efe.pk_efen_id_estado_funcionamiento_ensenianza = ue.fk_uned_id_estado_funcionamiento_ensenianza
+    </sql>
+
+    <!-- INSERT -->
+    <insert id="insert" parameterType="cl.mineduc.sidep.asistenciaapi.entities.UnidadEducativaEntity"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="pk_uned_id_unidad_educativa">
+        INSERT INTO unidad_educativa
+        (
+            fk_uned_id_programa,
+            fk_ue_id_modalidad,
+            fk_uned_id_mecanismo_financiamiento,
+            fk_uned_id_sostenedor,
+            fk_uned_id_estado_unidad_educativa,
+            fk_uned_id_genero,
+            fk_uned_id_estado_funcionamiento_ensenianza,
+            uned_nombre,
+            uned_rbd,
+            uned_dv_rbd,
+            uned_dependencia,
+            uned_sitio_web,
+            uned_software_propio,
+            uned_autoriza_intercambio_correo,
+            ue_codigo_area_telefono,
+            uned_telefono,
+            uned_celular,
+            uned_mail,
+            uned_resolucion,
+            uned_fecha_resolucion,
+            uned_codigo_institucion,
+            uned_fecha_inicio_ro,
+            uned_fecha_creacion
+        )
+        VALUES
+            (
+                #{programa},
+                #{modalidad},
+                #{mecanismoFinanciamiento},
+                #{sostenedor},
+                #{estadoUnidadEducativa},
+                #{genero},
+                #{estadoFuncionamientoEnsenianza},
+                #{nombre},
+                #{rbd},
+                #{dvRbd},
+                #{dependencia},
+                #{sitioWeb},
+                #{softwarePropio},
+                #{autorizaIntercambioCorreo},
+                #{codigoAreaTelefono},
+                #{telefono},
+                #{celular},
+                #{mail},
+                #{resolucion},
+                #{fechaResolucion},
+                #{codigoInstitucion},
+                #{fechaInicioRo},
+                CURRENT_TIMESTAMP
+            )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="update" parameterType="cl.mineduc.sidep.asistenciaapi.entities.UnidadEducativaEntity">
+        UPDATE unidad_educativa
+        SET
+            fk_uned_id_programa = #{programa},
+            fk_ue_id_modalidad = #{modalidad},
+            fk_uned_id_mecanismo_financiamiento = #{mecanismoFinanciamiento},
+            fk_uned_id_sostenedor = #{sostenedor},
+            fk_uned_id_estado_unidad_educativa = #{estadoUnidadEducativa},
+            fk_uned_id_genero = #{genero},
+            fk_uned_id_estado_funcionamiento_ensenianza = #{estadoFuncionamientoEnsenianza},
+            uned_nombre = #{nombre},
+            uned_rbd = #{rbd},
+            uned_dv_rbd = #{dvRbd},
+            uned_dependencia = #{dependencia},
+            uned_sitio_web = #{sitioWeb},
+            uned_software_propio = #{softwarePropio},
+            uned_autoriza_intercambio_correo = #{autorizaIntercambioCorreo},
+            ue_codigo_area_telefono = #{codigoAreaTelefono},
+            uned_telefono = #{telefono},
+            uned_celular = #{celular},
+            uned_mail = #{mail},
+            uned_resolucion = #{resolucion},
+            uned_fecha_resolucion = #{fechaResolucion},
+            uned_codigo_institucion = #{codigoInstitucion},
+            uned_fecha_inicio_ro = #{fechaInicioRo},
+            uned_fecha_termino_ro = #{fechaTerminoRo},
+            uned_fecha_actualizacion = CURRENT_TIMESTAMP
+        WHERE pk_uned_id_unidad_educativa = #{id}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM unidad_educativa
+        WHERE pk_uned_id_unidad_educativa = #{id}
+    </delete>
+
+    <!-- SELECT findAll -->
+    <select id="findAll" resultMap="unidadEducativaResultMap" parameterType="cl.mineduc.sidep.asistenciaapi.filter.UnidadEducativaFilter">
+        <include refid="selectUnidadEducativa" />
+        WHERE 1=1
+        <if test="nombre != null">
+            AND UPPER(ue.uned_nombre) LIKE UPPER(#{nombre})
+        </if>
+        <if test="rbd != null">
+            AND ue.uned_rbd = #{rbd}
+        </if>
+        <!-- Agrega más condiciones según campos del filter -->
+        <if test="orderBy != null">
+            ORDER BY #{orderBy} ${order}
+        </if>
+        <if test="limit != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <!-- SELECT countTotal -->
+    <select id="countTotal" resultType="java.lang.Long" parameterType="cl.mineduc.sidep.asistenciaapi.filter.UnidadEducativaFilter">
+        SELECT COUNT(ue.pk_uned_id_unidad_educativa)
+        FROM unidad_educativa ue
+        LEFT JOIN programa p ON p.pk_prog_id_programa = ue.fk_uned_id_programa
+        LEFT JOIN modalidad m ON m.pk_moda_id_modalidad = ue.fk_ue_id_modalidad
+        LEFT JOIN mecanismo_financiamiento mf ON mf.pk_mefi_id_mecanismo_financiamiento = ue.fk_uned_id_mecanismo_financiamiento
+        LEFT JOIN sostenedor s ON s.pk_sost_id_sostenedor = ue.fk_uned_id_sostenedor
+        LEFT JOIN estado_unidad_educativa eue ON eue.pk_eued_id_estado_unidad_educativa = ue.fk_uned_id_estado_unidad_educativa
+        LEFT JOIN genero g ON g.pk_gener_id_genero = ue.fk_uned_id_genero
+        LEFT JOIN estado_funcionamiento_ensenianza efe ON efe.pk_efen_id_estado_funcionamiento_ensenianza = ue.fk_uned_id_estado_funcionamiento_ensenianza
+        WHERE 1=1
+        <if test="nombre != null">
+            AND UPPER(ue.uned_nombre) LIKE UPPER(#{nombre})
+        </if>
+        <if test="rbd != null">
+            AND ue.uned_rbd = #{rbd}
+        </if>
+    </select>
+
+    <!-- SELECT findById -->
+    <select id="findById" resultMap="unidadEducativaResultMap" parameterType="java.lang.Long">
+        <include refid="selectUnidadEducativa" />
+        WHERE ue.pk_uned_id_unidad_educativa = #{id}
+    </select>
+
+</mapper>

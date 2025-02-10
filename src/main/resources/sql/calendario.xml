@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cl.mineduc.sidep.asistenciaapi.mappers.CalendarioMapper">
+
+    <resultMap id="calendarioResultMap" type="cl.mineduc.sidep.asistenciaapi.model.CalendarioModel">
+        <id property="id" column="pk_cale_id_calendario"/>
+        <result property="fecha" column="cale_fecha"/>
+        <result property="trabajado" column="cale_trabajado"/>
+        <result property="fechaCreacion" column="cale_fecha_creacion"/>
+        <result property="fechaActualizacion" column="cale_fecha_actualizacion"/>
+
+        <!-- Asociación con grupo -->
+        <association property="grupo" javaType="cl.mineduc.sidep.asistenciaapi.model.GrupoModel">
+            <id property="id" column="pk_grup_id_grupo"/>
+            <result property="letra" column="grup_letra"/>
+        </association>
+    </resultMap>
+
+    <sql id="selectCalendario">
+        SELECT
+            c.pk_cale_id_calendario,
+            c.cale_fecha,
+            c.cale_trabajado,
+            c.cale_fecha_creacion,
+            c.cale_fecha_actualizacion,
+
+            g.pk_grup_id_grupo,
+            g.grup_letra
+        FROM calendario c
+                 LEFT JOIN grupo g ON g.pk_grup_id_grupo = c.fk_cale_id_grupo
+    </sql>
+
+    <insert id="insert" parameterType="cl.mineduc.sidep.asistenciaapi.entities.CalendarioEntity"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="pk_cale_id_calendario">
+        INSERT INTO calendario
+        (
+            fk_cale_id_grupo,
+            cale_fecha,
+            cale_trabajado,
+            cale_fecha_creacion
+        )
+        VALUES
+            (
+                #{grupo},
+                #{fecha},
+                #{trabajado},
+                CURRENT_TIMESTAMP
+            )
+    </insert>
+
+    <update id="update" parameterType="cl.mineduc.sidep.asistenciaapi.entities.CalendarioEntity">
+        UPDATE calendario
+        SET
+            fk_cale_id_grupo = #{grupo},
+            cale_fecha = #{fecha},
+            cale_trabajado = #{trabajado},
+            cale_fecha_actualizacion = CURRENT_TIMESTAMP
+        WHERE pk_cale_id_calendario = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM calendario
+        WHERE pk_cale_id_calendario = #{id}
+    </delete>
+
+    <select id="findAll" resultMap="calendarioResultMap" parameterType="cl.mineduc.sidep.asistenciaapi.filter.CalendarioFilter">
+        <include refid="selectCalendario" />
+        WHERE 1=1
+        <if test="fecha != null">
+            AND c.cale_fecha = #{fecha}
+        </if>
+        <if test="orderBy != null">
+            ORDER BY #{orderBy} ${order}
+        </if>
+        <if test="limit != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countTotal" resultType="java.lang.Long" parameterType="cl.mineduc.sidep.asistenciaapi.filter.CalendarioFilter">
+        SELECT COUNT(c.pk_cale_id_calendario)
+        FROM calendario c
+        LEFT JOIN grupo g ON g.pk_grup_id_grupo = c.fk_cale_id_grupo
+        WHERE 1=1
+        <if test="fecha != null">
+            AND c.cale_fecha = #{fecha}
+        </if>
+    </select>
+
+    <select id="findById" resultMap="calendarioResultMap" parameterType="java.lang.Long">
+        <include refid="selectCalendario"/>
+        WHERE c.pk_cale_id_calendario = #{id}
+    </select>
+
+</mapper>

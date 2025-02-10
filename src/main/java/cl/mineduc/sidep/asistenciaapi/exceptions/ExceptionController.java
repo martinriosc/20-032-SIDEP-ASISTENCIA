@@ -1,7 +1,5 @@
 package cl.mineduc.sidep.asistenciaapi.exceptions;
 
-import cl.mineduc.sidep.asistenciaapi.services.ProcesoService;
-import cl.mineduc.sidep.asistenciaapi.utils.ProcesoUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +18,6 @@ import java.util.Map;
 @ControllerAdvice
 @RequiredArgsConstructor
 public class ExceptionController {
-
-    private final ProcesoService procesoService;
 
     @ExceptionHandler(value = SostenedorException.class)
     protected ResponseEntity<Map<String, Object>> handleSostenedorException(SostenedorException e, HttpServletRequest request) {
@@ -62,7 +58,6 @@ public class ExceptionController {
     }
 
     private ResponseEntity<Map<String, Object>> getMapResponseEntity(HttpServletRequest request, Exception e) {
-        this.procesoService.save(ProcesoUtils.getProcesoEntity(HttpStatus.OK.value(), ProcesoUtils.getOperacion(request.getMethod(), request.getRequestURI()), e.getMessage()));
         Map<String, Object> response = new HashMap<>();
         response.put("error", e.getMessage());
         response.put("timestamp", LocalDateTime.now());

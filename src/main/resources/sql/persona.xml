@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cl.mineduc.sidep.asistenciaapi.mappers.PersonaMapper">
+
+    <resultMap id="personaResultMap" type="cl.mineduc.sidep.asistenciaapi.model.PersonaModel">
+        <!-- PK -->
+        <id property="id" column="pk_pers_id_persona"/>
+
+        <!-- Campos directos -->
+        <result property="rut" column="pers_rut"/>
+        <result property="dv" column="pers_dv"/>
+        <result property="nombre" column="pers_nombre"/>
+        <result property="primerApellido" column="pers_primer_apellido"/>
+        <result property="segundoApellido" column="pers_segundo_apellido"/>
+        <result property="fechaNacimiento" column="pers_fecha_nacimiento"/>
+        <result property="fechaDefuncion" column="pers_fecha_defuncion"/>
+        <result property="normalizado" column="pers_normalizado"/>
+        <result property="esRut" column="pers_es_rut"/>
+        <result property="fechaNormalizacion" column="pers_fecha_normalizacion"/>
+        <result property="fechaCreacion" column="pers_fecha_creacion"/>
+        <result property="fechaActualizacion" column="pers_fecha_actualizacion"/>
+
+        <!-- Associations (llaves foráneas) -->
+        <association property="etnia" javaType="cl.mineduc.sidep.asistenciaapi.model.EtniaModel">
+            <id property="id" column="pk_etni_id_etnia"/>
+            <result property="nombre" column="etni_nombre"/>
+        </association>
+
+        <association property="nacionalidad" javaType="cl.mineduc.sidep.asistenciaapi.model.NacionalidadModel">
+            <id property="id" column="pk_naci_id_nacionalidad"/>
+            <result property="nombre" column="naci_nombre"/>
+        </association>
+
+        <association property="estadoCivil" javaType="cl.mineduc.sidep.asistenciaapi.model.EstadoCivilModel">
+            <id property="id" column="pk_esci_id_estado_civil"/>
+            <result property="nombre" column="esci_nombre"/>
+        </association>
+
+        <association property="sexo" javaType="cl.mineduc.sidep.asistenciaapi.model.SexoModel">
+            <id property="id" column="pk_sexo_id_sexo"/>
+            <result property="nombre" column="sexo_nombre"/>
+        </association>
+    </resultMap>
+
+    <sql id="selectPersona">
+        SELECT
+            p.pk_pers_id_persona,
+            p.pers_rut,
+            p.pers_dv,
+            p.pers_nombre,
+            p.pers_primer_apellido,
+            p.pers_segundo_apellido,
+            p.pers_fecha_nacimiento,
+            p.pers_fecha_defuncion,
+            p.pers_normalizado,
+            p.pers_es_rut,
+            p.pers_fecha_normalizacion,
+            p.pers_fecha_creacion,
+            p.pers_fecha_actualizacion,
+
+            -- Etnia
+            e.pk_etni_id_etnia,
+            e.etni_nombre,
+
+            -- Nacionalidad
+            n.pk_naci_id_nacionalidad,
+            n.naci_nombre,
+
+            -- Estado civil
+            ec.pk_esci_id_estado_civil,
+            ec.esci_nombre,
+
+            -- Sexo
+            sx.pk_sexo_id_sexo,
+            sx.sexo_nombre
+
+        FROM persona p
+                 LEFT JOIN etnia e ON e.pk_etni_id_etnia = p.fk_pers_id_etnia
+                 LEFT JOIN nacionalidad n ON n.pk_naci_id_nacionalidad = p.fk_pers_id_nacionalidad
+                 LEFT JOIN estado_civil ec ON ec.pk_esci_id_estado_civil = p.fk_pers_id_estado_civil
+                 LEFT JOIN sexo sx ON sx.pk_sexo_id_sexo = p.fk_pers_id_sexo
+    </sql>
+
+    <insert id="insert" parameterType="cl.mineduc.sidep.asistenciaapi.entities.PersonaEntity"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="pk_pers_id_persona">
+        INSERT INTO persona
+        (
+            fk_pers_id_etnia,
+            fk_pers_id_nacionalidad,
+            fk_pers_id_estado_civil,
+            fk_pers_id_sexo,
+            pers_rut,
+            pers_dv,
+            pers_nombre,
+            pers_primer_apellido,
+            pers_segundo_apellido,
+            pers_fecha_nacimiento,
+            pers_fecha_creacion
+        )
+        VALUES
+            (
+                #{etnia},
+                #{nacionalidad},
+                #{estadoCivil},
+                #{sexo},
+                #{rut},
+                #{dv},
+                #{nombre},
+                #{primerApellido},
+                #{segundoApellido},
+                #{fechaNacimiento},
+                CURRENT_TIMESTAMP
+            )
+    </insert>
+
+    <update id="update" parameterType="cl.mineduc.sidep.asistenciaapi.entities.PersonaEntity">
+        UPDATE persona
+        SET
+            fk_pers_id_etnia = #{etnia},
+            fk_pers_id_nacionalidad = #{nacionalidad},
+            fk_pers_id_estado_civil = #{estadoCivil},
+            fk_pers_id_sexo = #{sexo},
+            pers_rut = #{rut},
+            pers_dv = #{dv},
+            pers_nombre = #{nombre},
+            pers_primer_apellido = #{primerApellido},
+            pers_segundo_apellido = #{segundoApellido},
+            pers_fecha_nacimiento = #{fechaNacimiento},
+            pers_fecha_defuncion = #{fechaDefuncion},
+            pers_normalizado = #{normalizado},
+            pers_es_rut = #{esRut},
+            pers_fecha_normalizacion = #{fechaNormalizacion},
+            pers_fecha_actualizacion = CURRENT_TIMESTAMP
+        WHERE pk_pers_id_persona = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM persona
+        WHERE pk_pers_id_persona = #{id}
+    </delete>
+
+    <select id="findAll" resultMap="personaResultMap" parameterType="cl.mineduc.sidep.asistenciaapi.filter.PersonaFilter">
+        <include refid="selectPersona" />
+        WHERE 1=1
+        <if test="rut != null">
+            AND p.pers_rut = #{rut}
+        </if>
+        <if test="nombre != null">
+            AND UPPER(p.pers_nombre) LIKE UPPER(#{nombre})
+        </if>
+        <!-- Agrega más condiciones si se necesitan -->
+        <if test="orderBy != null">
+            ORDER BY #{orderBy} ${order}
+        </if>
+        <if test="limit != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countTotal" resultType="java.lang.Long" parameterType="cl.mineduc.sidep.asistenciaapi.filter.PersonaFilter">
+        SELECT COUNT(p.pk_pers_id_persona)
+        FROM persona p
+        LEFT JOIN etnia e ON e.pk_etni_id_etnia = p.fk_pers_id_etnia
+        LEFT JOIN nacionalidad n ON n.pk_naci_id_nacionalidad = p.fk_pers_id_nacionalidad
+        LEFT JOIN estado_civil ec ON ec.pk_esci_id_estado_civil = p.fk_pers_id_estado_civil
+        LEFT JOIN sexo sx ON sx.pk_sexo_id_sexo = p.fk_pers_id_sexo
+        WHERE 1=1
+        <if test="rut != null">
+            AND p.pers_rut = #{rut}
+        </if>
+        <if test="nombre != null">
+            AND UPPER(p.pers_nombre) LIKE UPPER(#{nombre})
+        </if>
+    </select>
+
+    <select id="findById" resultMap="personaResultMap" parameterType="java.lang.Long">
+        <include refid="selectPersona" />
+        WHERE p.pk_pers_id_persona = #{id}
+    </select>
+
+</mapper>

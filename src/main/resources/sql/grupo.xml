@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cl.mineduc.sidep.asistenciaapi.mappers.GrupoMapper">
+
+    <resultMap id="grupoResultMap" type="cl.mineduc.sidep.asistenciaapi.model.GrupoModel">
+        <id property="id" column="pk_grup_id_grupo"/>
+        <result property="letra" column="grup_letra"/>
+        <result property="cupo" column="grup_cupo"/>
+        <result property="fechaCreacion" column="grup_fecha_actualizacion"/>
+        <!-- OJO: en el documento aparecen 2 campos "grup_fecha_actualizacion" (¿Posible error?).
+             Suponiendo que el primero es creación, el segundo actualización. Ajustar si es distinto. -->
+        <result property="fechaActualizacion" column="grup_fecha_actualizacion"/>
+
+        <!-- Asumiendo foreign keys a jornada y grado -->
+        <association property="jornada" javaType="cl.mineduc.sidep.asistenciaapi.model.JornadaModel">
+            <id property="id" column="pk_jorn_id_jornada"/>
+            <result property="nombre" column="jorn_nombre"/>
+        </association>
+
+        <association property="grado" javaType="cl.mineduc.sidep.asistenciaapi.model.GradoModel">
+            <id property="id" column="pk_grad_id_grado"/>
+            <result property="nombre" column="grad_nombre"/>
+        </association>
+    </resultMap>
+
+    <sql id="selectGrupo">
+        SELECT
+            g.pk_grup_id_grupo,
+            g.grup_letra,
+            g.grup_cupo,
+            g.grup_fecha_actualizacion AS grup_fecha_creacion, -- si corresponde
+            g.grup_fecha_actualizacion, -- si corresponde
+
+            j.pk_jorn_id_jornada,
+            j.jorn_nombre,
+
+            gr.pk_grad_id_grado,
+            gr.grad_nombre
+        FROM grupo g
+                 LEFT JOIN jornada j ON j.pk_jorn_id_jornada = g.fk_grup_id_jornada
+                 LEFT JOIN grado gr ON gr.pk_grad_id_grado = g.fk_grup_id_grado
+    </sql>
+
+    <insert id="insert" parameterType="cl.mineduc.sidep.asistenciaapi.entities.GrupoEntity"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="pk_grup_id_grupo">
+        INSERT INTO grupo
+        (
+            fk_grup_id_jornada,
+            fk_grup_id_grado,
+            grup_letra,
+            grup_cupo,
+            grup_fecha_actualizacion -- Asumiendo que es la de creación si el modelo lo requiere
+        )
+        VALUES
+            (
+                #{jornada},
+                #{grado},
+                #{letra},
+                #{cupo},
+                CURRENT_TIMESTAMP
+            )
+    </insert>
+
+    <update id="update" parameterType="cl.mineduc.sidep.asistenciaapi.entities.GrupoEntity">
+        UPDATE grupo
+        SET
+            fk_grup_id_jornada = #{jornada},
+            fk_grup_id_grado = #{grado},
+            grup_letra = #{letra},
+            grup_cupo = #{cupo},
+            grup_fecha_actualizacion = CURRENT_TIMESTAMP
+        WHERE pk_grup_id_grupo = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM grupo
+        WHERE pk_grup_id_grupo = #{id}
+    </delete>
+
+    <select id="findAll" resultMap="grupoResultMap" parameterType="cl.mineduc.sidep.asistenciaapi.filter.GrupoFilter">
+        <include refid="selectGrupo"/>
+        WHERE 1=1
+        <if test="letra != null">
+            AND UPPER(g.grup_letra) LIKE UPPER(#{letra})
+        </if>
+        <if test="orderBy != null">
+            ORDER BY #{orderBy} ${order}
+        </if>
+        <if test="limit != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countTotal" resultType="java.lang.Long" parameterType="cl.mineduc.sidep.asistenciaapi.filter.GrupoFilter">
+        SELECT COUNT(g.pk_grup_id_grupo)
+        FROM grupo g
+        LEFT JOIN jornada j ON j.pk_jorn_id_jornada = g.fk_grup_id_jornada
+        LEFT JOIN grado gr ON gr.pk_grad_id_grado = g.fk_grup_id_grado
+        WHERE 1=1
+        <if test="letra != null">
+            AND UPPER(g.grup_letra) LIKE UPPER(#{letra})
+        </if>
+    </select>
+
+    <select id="findById" resultMap="grupoResultMap" parameterType="java.lang.Long">
+        <include refid="selectGrupo"/>
+        WHERE g.pk_grup_id_grupo = #{id}
+    </select>
+
+</mapper>

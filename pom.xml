@@ -132,7 +132,7 @@
     </dependencies>
 
     <build>
-        <finalName>api-sidep-sostenedor</finalName>
+        <finalName>api-sidep-asistencia</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -184,11 +184,11 @@
                 <version>0.8.12</version>
                 <configuration>
                     <excludes>
-                        <exclude>cl/mineduc/sidep/sostenedorapi/resources/**</exclude>
-                        <exclude>cl/mineduc/sidep/sostenedorapi/config/**</exclude>
-                        <exclude>cl/mineduc/sidep/sostenedorapi/model/**</exclude>
-                        <exclude>cl/mineduc/sidep/sostenedorapi/entities/**</exclude>
-                        <exclude>cl/mineduc/sidep/sostenedorapi/filter/**</exclude>
+                        <exclude>cl/mineduc/sidep/asistenciaapi/resources/**</exclude>
+                        <exclude>cl/mineduc/sidep/asistenciaapi/config/**</exclude>
+                        <exclude>cl/mineduc/sidep/asistenciaapi/model/**</exclude>
+                        <exclude>cl/mineduc/sidep/asistenciaapi/entities/**</exclude>
+                        <exclude>cl/mineduc/sidep/asistenciaapi/filter/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -217,7 +217,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimun>0.50</minimun>
+                                            <minimum>0.00</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

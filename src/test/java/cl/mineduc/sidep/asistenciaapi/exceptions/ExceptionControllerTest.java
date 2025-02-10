@@ -1,6 +1,5 @@
 package cl.mineduc.sidep.asistenciaapi.exceptions;
 
-import cl.mineduc.sidep.asistenciaapi.services.ProcesoService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,9 +21,6 @@ import static org.mockito.Mockito.*;
 @RunWith(SpringRunner.class)
 public class ExceptionControllerTest {
 
-    @Mock
-    private ProcesoService procesoService;
-
     @InjectMocks
     private ExceptionController controller;
 
@@ -36,8 +32,6 @@ public class ExceptionControllerTest {
         when(request.getMethod()).thenReturn("GET");
         when(request.getServletPath()).thenReturn("/");
         when(request.getRequestURI()).thenReturn("/");
-
-        doNothing().when(procesoService).save(any());
     }
 
     @Test
@@ -61,6 +55,5 @@ public class ExceptionControllerTest {
         when(bindingResult.getAllErrors()).thenReturn(Collections.singletonList(new ObjectError("error", "error")));
 
         assertNotNull(controller.handlerMethodArgumentNotValidException(ex, request));
-
     }
 }
