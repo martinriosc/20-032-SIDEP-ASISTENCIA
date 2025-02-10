@@ -5,24 +5,13 @@
 
 <mapper namespace="cl.mineduc.sidep.asistenciaapi.mappers.AsistenciaMapper">
 
-    <!--
-      resultMap: mapea las columnas de la tabla "asistencia" a las propiedades
-      de AsistenciaModel (usado en findAll, findById, etc.)
-    -->
     <resultMap id="asistenciaResultMap" type="cl.mineduc.sidep.asistenciaapi.model.AsistenciaModel">
         <!-- PK -->
         <id property="id" column="pk_asis_id_asistencia" />
         <!-- Fechas directas -->
-        <result property="fechaCreacion" column="asis_fecha_creacion" />
+        <result property="fechaRegistro" column="asis_fecha_creacion" />
         <result property="fechaActualizacion" column="asis_fecha_actualizacion" />
-        <!--
-          Si tu tabla "asistencia" tuviese columnas directas para rbd, ensenanza, etc.,
-          mapea aquí. De lo contrario, se asume que la info va en JSON.
-          Por ejemplo:
-          <result property="rbd" column="rbd" />
-          <result property="ensenanza" column="ensenanza" />
-          ...
-        -->
+
     </resultMap>
 
     <!-- Reusable SQL para SELECT principal -->

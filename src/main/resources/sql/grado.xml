@@ -12,7 +12,7 @@
         <result property="fechaActualizacion" column="grad_fecha_actualizacion" />
 
         <!-- Asociación a unidad_educativa -->
-        <association property="unidadEducativa" javaType="cl.mineduc.sidep.asistenciaapi.model.UnidadEducativaModel">
+        <association property="unidadEducativaId" javaType="cl.mineduc.sidep.asistenciaapi.model.UnidadEducativaModel">
             <id property="id" column="pk_uned_id_unidad_educativa"/>
             <result property="nombre" column="uned_nombre"/>
         </association>

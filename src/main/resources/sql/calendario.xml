@@ -13,7 +13,7 @@
         <result property="fechaActualizacion" column="cale_fecha_actualizacion"/>
 
         <!-- Asociación con grupo -->
-        <association property="grupo" javaType="cl.mineduc.sidep.asistenciaapi.model.GrupoModel">
+        <association property="id" javaType="cl.mineduc.sidep.asistenciaapi.model.GrupoModel">
             <id property="id" column="pk_grup_id_grupo"/>
             <result property="letra" column="grup_letra"/>
         </association>

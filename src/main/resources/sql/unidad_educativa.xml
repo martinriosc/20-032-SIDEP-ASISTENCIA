@@ -35,40 +35,40 @@
 
         <!-- Associations (llaves foráneas) -->
         <!-- Suponiendo que existen Programas, Modalidad, etc. con sus propios Model -->
-        <association property="programa" javaType="cl.mineduc.sidep.asistenciaapi.model.ProgramaModel">
-            <id property="id" column="pk_prog_id_programa" />
+        <association property="programaId" javaType="cl.mineduc.sidep.asistenciaapi.model.ProgramaModel">
+            <id property="idPrograma" column="pk_prog_id_programa" />
             <!-- Ejemplo de alguna otra columna de programa (ajustar según la tabla real) -->
             <result property="nombre" column="prog_nombre" />
         </association>
 
-        <association property="modalidad" javaType="cl.mineduc.sidep.asistenciaapi.model.ModalidadModel">
-            <id property="id" column="pk_moda_id_modalidad" />
+        <association property="modalidadId" javaType="cl.mineduc.sidep.asistenciaapi.model.ModalidadModel">
+            <id property="idModalidad" column="pk_moda_id_modalidad" />
             <!-- Ajustar las columnas reales de la tabla modalidad -->
             <result property="nombre" column="moda_nombre" />
         </association>
 
-        <association property="mecanismoFinanciamiento" javaType="cl.mineduc.sidep.asistenciaapi.model.MecanismoFinanciamientoModel">
-            <id property="id" column="pk_mefi_id_mecanismo_financiamiento" />
+        <association property="mecanismoFinanciamientoId" javaType="cl.mineduc.sidep.asistenciaapi.model.MecanismoFinanciamientoModel">
+            <id property="idMecanismoFinanciamiento" column="pk_mefi_id_mecanismo_financiamiento" />
             <result property="nombre" column="mefi_nombre" />
         </association>
 
-        <association property="sostenedor" javaType="cl.mineduc.sidep.asistenciaapi.model.SostenedorModel">
-            <id property="id" column="pk_sost_id_sostenedor" />
+        <association property="sostenedorId" javaType="cl.mineduc.sidep.asistenciaapi.model.SostenedorModel">
+            <id property="idSostenedor" column="pk_sost_id_sostenedor" />
             <result property="nombre" column="sost_nombre" />
         </association>
 
-        <association property="estadoUnidadEducativa" javaType="cl.mineduc.sidep.asistenciaapi.model.EstadoUnidadEducativaModel">
-            <id property="id" column="pk_eued_id_estado_unidad_educativa" />
+        <association property="estadoUnidadEducativaId" javaType="cl.mineduc.sidep.asistenciaapi.model.EstadoUnidadEducativaModel">
+            <id property="idEstadoUnidadEducativa" column="pk_eued_id_estado_unidad_educativa" />
             <result property="nombre" column="eued_nombre" />
         </association>
 
-        <association property="genero" javaType="cl.mineduc.sidep.asistenciaapi.model.GeneroModel">
-            <id property="id" column="pk_gener_id_genero" />
+        <association property="generoId" javaType="cl.mineduc.sidep.asistenciaapi.model.GeneroModel">
+            <id property="idGenero" column="pk_gener_id_genero" />
             <result property="nombre" column="gener_nombre" />
         </association>
 
-        <association property="estadoFuncionamientoEnsenianza" javaType="cl.mineduc.sidep.asistenciaapi.model.EstadoFuncionamientoEnsenianzaModel">
-            <id property="id" column="pk_efen_id_estado_funcionamiento_ensenianza" />
+        <association property="estadoFuncionamientoEnsenianzaId" javaType="cl.mineduc.sidep.asistenciaapi.model.EstadoFuncionamientoEnsenianzaModel">
+            <id property="idEstadoFuncionamientoEnsenianza" column="pk_efen_id_estado_funcionamiento_ensenianza" />
             <result property="nombre" column="efen_nombre" />
         </association>
     </resultMap>

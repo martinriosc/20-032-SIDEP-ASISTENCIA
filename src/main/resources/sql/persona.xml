@@ -24,23 +24,23 @@
         <result property="fechaActualizacion" column="pers_fecha_actualizacion"/>
 
         <!-- Associations (llaves foráneas) -->
-        <association property="etnia" javaType="cl.mineduc.sidep.asistenciaapi.model.EtniaModel">
-            <id property="id" column="pk_etni_id_etnia"/>
+        <association property="etniaId" javaType="cl.mineduc.sidep.asistenciaapi.model.EtniaModel">
+            <id property="idEtnia" column="pk_etni_id_etnia"/>
             <result property="nombre" column="etni_nombre"/>
         </association>
 
-        <association property="nacionalidad" javaType="cl.mineduc.sidep.asistenciaapi.model.NacionalidadModel">
-            <id property="id" column="pk_naci_id_nacionalidad"/>
+        <association property="nacionalidadId" javaType="cl.mineduc.sidep.asistenciaapi.model.NacionalidadModel">
+            <id property="idNacionalidad" column="pk_naci_id_nacionalidad"/>
             <result property="nombre" column="naci_nombre"/>
         </association>
 
-        <association property="estadoCivil" javaType="cl.mineduc.sidep.asistenciaapi.model.EstadoCivilModel">
-            <id property="id" column="pk_esci_id_estado_civil"/>
+        <association property="estadoCivilId" javaType="cl.mineduc.sidep.asistenciaapi.model.EstadoCivilModel">
+            <id property="idEstadoCivil" column="pk_esci_id_estado_civil"/>
             <result property="nombre" column="esci_nombre"/>
         </association>
 
-        <association property="sexo" javaType="cl.mineduc.sidep.asistenciaapi.model.SexoModel">
-            <id property="id" column="pk_sexo_id_sexo"/>
+        <association property="sexoId" javaType="cl.mineduc.sidep.asistenciaapi.model.SexoModel">
+            <id property="idSexo" column="pk_sexo_id_sexo"/>
             <result property="nombre" column="sexo_nombre"/>
         </association>
     </resultMap>

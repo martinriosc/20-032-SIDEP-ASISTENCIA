@@ -10,17 +10,15 @@
         <result property="letra" column="grup_letra"/>
         <result property="cupo" column="grup_cupo"/>
         <result property="fechaCreacion" column="grup_fecha_actualizacion"/>
-        <!-- OJO: en el documento aparecen 2 campos "grup_fecha_actualizacion" (¿Posible error?).
-             Suponiendo que el primero es creación, el segundo actualización. Ajustar si es distinto. -->
         <result property="fechaActualizacion" column="grup_fecha_actualizacion"/>
 
         <!-- Asumiendo foreign keys a jornada y grado -->
-        <association property="jornada" javaType="cl.mineduc.sidep.asistenciaapi.model.JornadaModel">
-            <id property="id" column="pk_jorn_id_jornada"/>
+        <association property="jornadaId" javaType="cl.mineduc.sidep.asistenciaapi.model.JornadaModel">
+            <id property="idJornada" column="pk_jorn_id_jornada"/>
             <result property="nombre" column="jorn_nombre"/>
         </association>
 
-        <association property="grado" javaType="cl.mineduc.sidep.asistenciaapi.model.GradoModel">
+        <association property="gradoId" javaType="cl.mineduc.sidep.asistenciaapi.model.GradoModel">
             <id property="id" column="pk_grad_id_grado"/>
             <result property="nombre" column="grad_nombre"/>
         </association>
