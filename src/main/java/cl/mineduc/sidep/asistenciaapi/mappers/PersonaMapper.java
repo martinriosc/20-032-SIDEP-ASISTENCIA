@@ -8,16 +8,10 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface PersonaMapper {
-
     List<PersonaModel> findAll(PersonaFilter filter);
-
     PersonaModel findById(@Param("id") Long id);
-
     Long insert(PersonaEntity entity);
-
     void update(@Param("e") PersonaEntity entity, @Param("id") Long id);
-
     void delete(@Param("id") Long id);
-
     Long countTotal(PersonaFilter filter);
 }

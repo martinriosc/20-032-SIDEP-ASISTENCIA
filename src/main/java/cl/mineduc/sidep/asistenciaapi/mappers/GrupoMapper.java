@@ -8,16 +8,10 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface GrupoMapper {
-
     List<GrupoModel> findAll(GrupoFilter filter);
-
     GrupoModel findById(@Param("id") Long id);
-
     Long insert(GrupoEntity entity);
-
     void update(@Param("e") GrupoEntity entity, @Param("id") Long id);
-
     void delete(@Param("id") Long id);
-
     Long countTotal(GrupoFilter filter);
 }

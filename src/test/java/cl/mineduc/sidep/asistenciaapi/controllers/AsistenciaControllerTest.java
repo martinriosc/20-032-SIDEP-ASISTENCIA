@@ -40,7 +40,6 @@ public class AsistenciaControllerTest {
 
     @Test
     public void updateAsistenciaPupiloPorDia() {
-        // Preparación
         AsistenciaIndividualModel input = new AsistenciaIndividualModel();
         input.setRut(12345678);
         AsistenciaModel expected = new AsistenciaModel();
@@ -48,10 +47,8 @@ public class AsistenciaControllerTest {
 
         when(asistenciaService.updateAsistenciaPupiloPorDia(any())).thenReturn(expected);
 
-        // Ejecución
         ResponseEntity<AsistenciaModel> response = asistenciaController.updateAsistenciaPupiloPorDia(input, request);
 
-        // Verificación
         assertNotNull(response);
         assertNotNull(response.getBody());
         verify(asistenciaService, times(1)).updateAsistenciaPupiloPorDia(any());
@@ -59,7 +56,6 @@ public class AsistenciaControllerTest {
 
     @Test
     public void updateAsistenciaGrupalPupiloPorDia() {
-        // Preparación
         AsistenciaIndividualModel a1 = new AsistenciaIndividualModel();
         a1.setRut(11111111);
         AsistenciaIndividualModel a2 = new AsistenciaIndividualModel();
@@ -70,12 +66,10 @@ public class AsistenciaControllerTest {
 
         when(asistenciaService.updateAsistenciaGrupalPupiloPorDia(anyList())).thenReturn(expected);
 
-        // Ejecución
         ResponseEntity<AsistenciaModel> response = asistenciaController.updateAsistenciaGrupalPupiloPorDia(
                 Arrays.asList(a1, a2), request
         );
 
-        // Verificación
         assertNotNull(response);
         assertNotNull(response.getBody());
         verify(asistenciaService, times(1)).updateAsistenciaGrupalPupiloPorDia(anyList());
@@ -83,7 +77,6 @@ public class AsistenciaControllerTest {
 
     @Test
     public void findAsistenciaPorMesAndDia() {
-        // Cambiamos anyString() por any()
         when(asistenciaService.findAsistenciaPorMesAndDia(
                 any(), any(), any(), any(), any(), any(), anyInt()
         )).thenReturn(PaginationResultModel.<AsistenciaModel>builder().build());
@@ -103,7 +96,6 @@ public class AsistenciaControllerTest {
 
     @Test
     public void findAsistencia() {
-        // Ídem: cambiar anyString() por any()
         when(asistenciaService.findAsistencia(
                 any(), any(), any(), any(), anyInt()
         )).thenReturn(PaginationResultModel.<AsistenciaModel>builder().build());
@@ -120,7 +112,6 @@ public class AsistenciaControllerTest {
 
     @Test
     public void findAllAsistencia() {
-        // Corrección: ahora usamos 'asistenciaController.findAllAsistencia(...)'
         when(asistenciaService.findAllAsistencia(
                 anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyInt()
         )).thenReturn(PaginationResultModel.<AsistenciaModel>builder()

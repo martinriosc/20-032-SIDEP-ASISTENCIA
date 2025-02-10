@@ -32,7 +32,6 @@ public class AsistenciaServiceImplTest {
 
     @Before
     public void setUp() {
-        // Configuraciones iniciales si las necesitas
     }
 
     @Test
@@ -41,10 +40,9 @@ public class AsistenciaServiceImplTest {
         input.setRut(12345678);
         input.setPresente(true);
 
-        // Simulamos que el registro no existe en BD y se hará un insert
         doAnswer(invocation -> {
             AsistenciaEntity e = invocation.getArgument(0);
-            e.setId(99L); // simulamos ID autogenerado
+            e.setId(99L);
             return null;
         }).when(asistenciaRepository).save(any(AsistenciaEntity.class));
 
@@ -72,7 +70,6 @@ public class AsistenciaServiceImplTest {
         input.setRut(12345678);
         input.setPresente(false);
 
-        // Simulamos que el registro sí existe y haremos update
         doNothing().when(asistenciaRepository).update(any(AsistenciaEntity.class));
 
         AsistenciaModel mockedDbRecord = new AsistenciaModel();
@@ -99,7 +96,6 @@ public class AsistenciaServiceImplTest {
         a1.setRut(11111111);
         a2.setRut(22222222);
 
-        // Simplificamos la lógica => cada uno se insertaría/actualizaría
         doAnswer(inv -> {
             AsistenciaEntity e = inv.getArgument(0);
             e.setId(1L);
@@ -159,7 +155,6 @@ public class AsistenciaServiceImplTest {
         when(asistenciaRepository.countTotal(any(AsistenciaFilter.class)))
                 .thenReturn(2L);
 
-        // pageSize = 10, y total de resultados = 2 => totalPaginas = 1
         PaginationResultModel<AsistenciaModel> result = asistenciaService.findAllAsistencia(
                 "2020-01-01", "2020-12-31", "EstX", "RegX", "ProvX", "ComX", 10, 0
         );

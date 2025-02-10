@@ -6,8 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class UnidadEducativaFilter {
-
-    // Filtrado por llaves foráneas
     private Long programaId;
     private Long modalidadId;
     private Long mecanismoFinanciamientoId;
@@ -15,8 +13,6 @@ public class UnidadEducativaFilter {
     private Long estadoUnidadEducativaId;
     private Long generoId;
     private Long estadoFuncionamientoEnsenianzaId;
-
-    // Filtrado por campos propios de la tabla
     private String nombre;      // uned_nombre
     private Integer rbd;        // uned_rbd
     private Integer dvRbd;      // uned_dv_rbd
@@ -29,12 +25,8 @@ public class UnidadEducativaFilter {
     private String celular;
     private String mail;
     private String resolucion;
-
-    // Rango de fechas, si deseas filtrar por fecha creación/actualización
     private String fechaInicioRoDesde;
     private String fechaInicioRoHasta;
-
-    // Campos para paginación y orden
     private Integer limit;
     private Integer offset;
     private String orderBy; // columna a ordenar
