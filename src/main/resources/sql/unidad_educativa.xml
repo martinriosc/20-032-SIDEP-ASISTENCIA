@@ -33,6 +33,8 @@
         <result property="fechaCreacion" column="uned_fecha_creacion" />
         <result property="fechaActualizacion" column="uned_fecha_actualizacion" />
 
+
+
         <!-- Associations (llaves foráneas) -->
         <!-- Suponiendo que existen Programas, Modalidad, etc. con sus propios Model -->
         <association property="programaId" javaType="cl.mineduc.sidep.asistenciaapi.model.ProgramaModel">
@@ -71,6 +73,7 @@
             <id property="idEstadoFuncionamientoEnsenianza" column="pk_efen_id_estado_funcionamiento_ensenianza" />
             <result property="nombre" column="efen_nombre" />
         </association>
+        -->
     </resultMap>
 
     <!-- SQL reusable para SELECT principal -->
@@ -84,7 +87,7 @@
             ue.uned_sitio_web,
             ue.uned_software_propio,
             ue.uned_autoriza_intercambio_correo,
-            ue.ue_codigo_area_telefono,
+            ue.uned_codigo_area_telefono,
             ue.uned_telefono,
             ue.uned_celular,
             ue.uned_mail,
@@ -117,8 +120,8 @@
             eue.eued_nombre,
 
             -- Genero
-            g.pk_gener_id_genero,
-            g.gener_nombre,
+            g.pk_gene_id_genero
+            g.,
 
             -- Estado Funcionamiento Enseñanza
             efe.pk_efen_id_estado_funcionamiento_ensenianza,

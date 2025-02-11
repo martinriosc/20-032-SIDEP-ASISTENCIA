@@ -21,7 +21,7 @@
         <association property="gradoId" javaType="cl.mineduc.sidep.asistenciaapi.model.GradoModel">
             <id property="id" column="pk_grad_id_grado"/>
             <result property="nombre" column="grad_nombre"/>
-        </association>
+        </association> -->
     </resultMap>
 
     <sql id="selectGrupo">

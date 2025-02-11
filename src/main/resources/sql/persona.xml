@@ -42,7 +42,7 @@
         <association property="sexoId" javaType="cl.mineduc.sidep.asistenciaapi.model.SexoModel">
             <id property="idSexo" column="pk_sexo_id_sexo"/>
             <result property="nombre" column="sexo_nombre"/>
-        </association>
+        </association> -->
     </resultMap>
 
     <sql id="selectPersona">
