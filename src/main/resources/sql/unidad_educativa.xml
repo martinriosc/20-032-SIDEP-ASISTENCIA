@@ -73,7 +73,6 @@
             <id property="idEstadoFuncionamientoEnsenianza" column="pk_efen_id_estado_funcionamiento_ensenianza" />
             <result property="nombre" column="efen_nombre" />
         </association>
-        -->
     </resultMap>
 
     <!-- SQL reusable para SELECT principal -->
@@ -120,8 +119,8 @@
             eue.eued_nombre,
 
             -- Genero
-            g.pk_gene_id_genero
-            g.,
+            g.pk_gene_id_genero,
+            g.gene_nombre,
 
             -- Estado Funcionamiento Enseñanza
             efe.pk_efen_id_estado_funcionamiento_ensenianza,
@@ -129,11 +128,11 @@
 
         FROM unidad_educativa ue
                  LEFT JOIN programa p ON p.pk_prog_id_programa = ue.fk_uned_id_programa
-                 LEFT JOIN modalidad m ON m.pk_moda_id_modalidad = ue.fk_ue_id_modalidad
+                 LEFT JOIN modalidad m ON m.pk_moda_id_modalidad = ue.fk_uned_id_modalidad
                  LEFT JOIN mecanismo_financiamiento mf ON mf.pk_mefi_id_mecanismo_financiamiento = ue.fk_uned_id_mecanismo_financiamiento
                  LEFT JOIN sostenedor s ON s.pk_sost_id_sostenedor = ue.fk_uned_id_sostenedor
                  LEFT JOIN estado_unidad_educativa eue ON eue.pk_eued_id_estado_unidad_educativa = ue.fk_uned_id_estado_unidad_educativa
-                 LEFT JOIN genero g ON g.pk_gener_id_genero = ue.fk_uned_id_genero
+                 LEFT JOIN genero g ON g.pk_gene_id_genero = ue.fk_uned_id_genero
                  LEFT JOIN estado_funcionamiento_ensenianza efe ON efe.pk_efen_id_estado_funcionamiento_ensenianza = ue.fk_uned_id_estado_funcionamiento_ensenianza
     </sql>
 
@@ -143,7 +142,7 @@
         INSERT INTO unidad_educativa
         (
             fk_uned_id_programa,
-            fk_ue_id_modalidad,
+            fk_uned_id_modalidad,
             fk_uned_id_mecanismo_financiamiento,
             fk_uned_id_sostenedor,
             fk_uned_id_estado_unidad_educativa,
@@ -156,7 +155,7 @@
             uned_sitio_web,
             uned_software_propio,
             uned_autoriza_intercambio_correo,
-            ue_codigo_area_telefono,
+            uned_codigo_area_telefono,
             uned_telefono,
             uned_celular,
             uned_mail,
@@ -199,7 +198,7 @@
         UPDATE unidad_educativa
         SET
             fk_uned_id_programa = #{programa},
-            fk_ue_id_modalidad = #{modalidad},
+            fk_uned_id_modalidad = #{modalidad},
             fk_uned_id_mecanismo_financiamiento = #{mecanismoFinanciamiento},
             fk_uned_id_sostenedor = #{sostenedor},
             fk_uned_id_estado_unidad_educativa = #{estadoUnidadEducativa},
@@ -212,7 +211,7 @@
             uned_sitio_web = #{sitioWeb},
             uned_software_propio = #{softwarePropio},
             uned_autoriza_intercambio_correo = #{autorizaIntercambioCorreo},
-            ue_codigo_area_telefono = #{codigoAreaTelefono},
+            uned_codigo_area_telefono = #{codigoAreaTelefono},
             uned_telefono = #{telefono},
             uned_celular = #{celular},
             uned_mail = #{mail},
@@ -261,7 +260,7 @@
         LEFT JOIN estado_unidad_educativa eue ON eue.pk_eued_id_estado_unidad_educativa = ue.fk_uned_id_estado_unidad_educativa
         LEFT JOIN genero g ON g.pk_gener_id_genero = ue.fk_uned_id_genero
         LEFT JOIN estado_funcionamiento_ensenianza efe ON efe.pk_efen_id_estado_funcionamiento_ensenianza = ue.fk_uned_id_estado_funcionamiento_ensenianza
-        WHERE 1=1
+        WHERE TRUE
         <if test="nombre != null">
             AND UPPER(ue.uned_nombre) LIKE UPPER(#{nombre})
         </if>
