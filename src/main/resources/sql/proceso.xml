@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cl.mineduc.sidep.asistenciaapi.mappers.ProcesoMapper">
+
+    <insert id="save"
+            parameterType="cl.mineduc.sidep.asistenciaapi.entities.ProcesoEntity"
+            useGeneratedKeys="true"
+            keyColumn="pk_proceso_proc_id">
+        INSERT INTO sidep_procesos_log (proc_servicio, proc_status, proc_mensaje, proc_fecha_proceso, proc_operacion)
+        VALUES ('SOSTENEDOR_API',
+                #{status},
+                #{mensaje},
+                current_timestamp,
+                #{operacion})
+    </insert>
+
+</mapper>
