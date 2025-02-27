@@ -1,15 +1,19 @@
 package cl.mineduc.sidep.asistenciaapi.services;
 
 import cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity;
+import cl.mineduc.sidep.asistenciaapi.exceptions.SidepException;
 import cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaIndividualModel;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaModel;
+import cl.mineduc.sidep.asistenciaapi.model.CalendarioModel;
 import cl.mineduc.sidep.asistenciaapi.model.PaginationResultModel;
 import cl.mineduc.sidep.asistenciaapi.repositories.AsistenciaRepository;
+import cl.mineduc.sidep.asistenciaapi.repositories.CalendarioRepository;
 import cl.mineduc.sidep.asistenciaapi.services.impl.AsistenciaServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mybatis.spring.MyBatisSystemException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -19,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
@@ -26,6 +31,9 @@ public class AsistenciaServiceImplTest {
 
     @Mock
     private AsistenciaRepository asistenciaRepository;
+
+    @Mock
+    private CalendarioRepository calendarioRepository;
 
     @InjectMocks
     private AsistenciaServiceImpl asistenciaService;
@@ -40,6 +48,7 @@ public class AsistenciaServiceImplTest {
         input.setRut(12345678);
         input.setPresente(true);
 
+        // Caso sin calendario (o calendario no seteado)
         doAnswer(invocation -> {
             AsistenciaEntity e = invocation.getArgument(0);
             e.setId(99L);
@@ -89,6 +98,59 @@ public class AsistenciaServiceImplTest {
         verify(asistenciaRepository, times(1)).findById(10L);
     }
 
+    @Test(expected = SidepException.class)
+    public void updateAsistenciaPupiloPorDia_saveException() {
+        AsistenciaIndividualModel input = new AsistenciaIndividualModel();
+        input.setRut(12345678);
+        input.setPresente(true);
+
+        doThrow(new MyBatisSystemException(new Exception()))
+                .when(asistenciaRepository).save(any());
+
+        asistenciaService.updateAsistenciaPupiloPorDia(input);
+    }
+
+
+    @Test
+    public void updateAsistenciaPupiloPorDia_calendarioNoTrabajado() {
+        AsistenciaIndividualModel input = new AsistenciaIndividualModel();
+        input.setRut(12345678);
+        input.setCalendarioId(100L);
+
+        CalendarioModel calendario = new CalendarioModel();
+        calendario.setTrabajado(false);
+        when(calendarioRepository.findById(100L)).thenReturn(calendario);
+
+        doAnswer(invocation -> {
+            AsistenciaEntity e = invocation.getArgument(0);
+            e.setId(101L);
+            return null;
+        }).when(asistenciaRepository).save(any(AsistenciaEntity.class));
+
+        AsistenciaModel mockedDbRecord = new AsistenciaModel();
+        mockedDbRecord.setId(101L);
+        mockedDbRecord.setRut(12345678);
+        when(asistenciaRepository.findById(eq(101L))).thenReturn(mockedDbRecord);
+
+        AsistenciaModel result = asistenciaService.updateAsistenciaPupiloPorDia(input);
+
+        assertNotNull(result);
+        assertEquals(Long.valueOf(101L), result.getId());
+    }
+
+    @Test(expected = SidepException.class)
+    public void updateAsistenciaPupiloPorDia_calendarioTrabajado() {
+        AsistenciaIndividualModel input = new AsistenciaIndividualModel();
+        input.setRut(12345678);
+        input.setCalendarioId(100L);
+
+        CalendarioModel calendario = new CalendarioModel();
+        calendario.setTrabajado(true);
+        when(calendarioRepository.findById(100L)).thenReturn(calendario);
+
+        asistenciaService.updateAsistenciaPupiloPorDia(input);
+    }
+
     @Test
     public void updateAsistenciaGrupalPupiloPorDia() {
         AsistenciaIndividualModel a1 = new AsistenciaIndividualModel();
@@ -109,14 +171,23 @@ public class AsistenciaServiceImplTest {
 
         when(asistenciaRepository.findById(anyLong())).thenReturn(mockedDbRecord);
 
-        List<AsistenciaIndividualModel> asistencias = new java.util.ArrayList<>();
-        asistencias.add(a1);
-        asistencias.add(a2);
+        List<AsistenciaIndividualModel> asistencias = Arrays.asList(a1, a2);
 
         AsistenciaModel result = asistenciaService.updateAsistenciaGrupalPupiloPorDia(asistencias);
         assertNotNull(result);
         assertTrue(result.getAsistio());
         verify(asistenciaRepository, times(2)).findById(anyLong());
+    }
+
+    @Test(expected = SidepException.class)
+    public void updateAsistenciaGrupalPupiloPorDia_exception() {
+        AsistenciaIndividualModel a1 = new AsistenciaIndividualModel();
+        a1.setRut(11111111);
+        List<AsistenciaIndividualModel> asistencias = Collections.singletonList(a1);
+
+        doThrow(new MyBatisSystemException(new Exception()))
+                .when(asistenciaRepository).save(any());
+        asistenciaService.updateAsistenciaGrupalPupiloPorDia(asistencias);
     }
 
     @Test
@@ -134,6 +205,13 @@ public class AsistenciaServiceImplTest {
         assertEquals(Long.valueOf(1L), result.getTotalPaginas());
     }
 
+    @Test(expected = SidepException.class)
+    public void findAsistencia_exception() {
+        doThrow(new MyBatisSystemException(new Exception()))
+                .when(asistenciaRepository).findAll(any());
+        asistenciaService.findAsistencia("123", "ENSE", "1", "A", 11111111);
+    }
+
     @Test
     public void findAsistenciaPorMesAndDia() {
         when(asistenciaRepository.findAll(any(AsistenciaFilter.class)))
@@ -148,6 +226,14 @@ public class AsistenciaServiceImplTest {
         assertEquals(Long.valueOf(0L), result.getTotalElementos());
         assertEquals(Long.valueOf(0L), result.getTotalPaginas());
     }
+
+    @Test(expected = SidepException.class)
+    public void findAsistenciaPorMesAndDia_exception() {
+        doThrow(new MyBatisSystemException(new Exception()))
+                .when(asistenciaRepository).findAll(any());
+        asistenciaService.findAsistenciaPorMesAndDia("123", "ENSE", "1", "A", "01", "15", 11111111);
+    }
+
     @Test
     public void findAllAsistencia() {
         when(asistenciaRepository.findAll(any(AsistenciaFilter.class)))
@@ -161,7 +247,14 @@ public class AsistenciaServiceImplTest {
 
         assertNotNull(result);
         assertEquals(Long.valueOf(2L), result.getTotalElementos());
+        // Se calcula totalPaginas según la cantidad de elementos en la lista
         assertEquals(Long.valueOf(1L), result.getTotalPaginas());
     }
 
+    @Test(expected = SidepException.class)
+    public void findAllAsistencia_exception() {
+        doThrow(new MyBatisSystemException(new Exception()))
+                .when(asistenciaRepository).findAll(any());
+        asistenciaService.findAllAsistencia("2020-01-01", "2020-12-31", "EstX", "RegX", "ProvX", "ComX", 10, 0);
+    }
 }

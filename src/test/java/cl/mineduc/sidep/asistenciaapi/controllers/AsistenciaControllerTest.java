@@ -1,5 +1,6 @@
 package cl.mineduc.sidep.asistenciaapi.controllers;
 
+import cl.mineduc.sidep.asistenciaapi.exceptions.SidepException;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaIndividualModel;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaModel;
 import cl.mineduc.sidep.asistenciaapi.model.PaginationResultModel;
@@ -13,11 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
@@ -54,6 +55,15 @@ public class AsistenciaControllerTest {
         verify(asistenciaService, times(1)).updateAsistenciaPupiloPorDia(any());
     }
 
+    @Test(expected = SidepException.class)
+    public void updateAsistenciaPupiloPorDia_exception() {
+        AsistenciaIndividualModel input = new AsistenciaIndividualModel();
+        input.setRut(12345678);
+        when(asistenciaService.updateAsistenciaPupiloPorDia(any()))
+                .thenThrow(new SidepException("Error", null));
+        asistenciaController.updateAsistenciaPupiloPorDia(input, request);
+    }
+
     @Test
     public void updateAsistenciaGrupalPupiloPorDia() {
         AsistenciaIndividualModel a1 = new AsistenciaIndividualModel();
@@ -75,6 +85,13 @@ public class AsistenciaControllerTest {
         verify(asistenciaService, times(1)).updateAsistenciaGrupalPupiloPorDia(anyList());
     }
 
+    @Test(expected = SidepException.class)
+    public void updateAsistenciaGrupalPupiloPorDia_exception() {
+        when(asistenciaService.updateAsistenciaGrupalPupiloPorDia(anyList()))
+                .thenThrow(new SidepException("Error", null));
+        asistenciaController.updateAsistenciaGrupalPupiloPorDia(Collections.singletonList(new AsistenciaIndividualModel()), request);
+    }
+
     @Test
     public void findAsistenciaPorMesAndDia() {
         when(asistenciaService.findAsistenciaPorMesAndDia(
@@ -93,6 +110,12 @@ public class AsistenciaControllerTest {
         );
     }
 
+    @Test(expected = SidepException.class)
+    public void findAsistenciaPorMesAndDia_exception() {
+        when(asistenciaService.findAsistenciaPorMesAndDia(any(), any(), any(), any(), any(), any(), anyInt()))
+                .thenThrow(new SidepException("Error", null));
+        asistenciaController.findAsistenciaPorMesAndDia(null, null, null, null, null, null, 12345678, request);
+    }
 
     @Test
     public void findAsistencia() {
@@ -108,6 +131,13 @@ public class AsistenciaControllerTest {
         verify(asistenciaService, times(1)).findAsistencia(
                 any(), any(), any(), any(), anyInt()
         );
+    }
+
+    @Test(expected = SidepException.class)
+    public void findAsistencia_exception() {
+        when(asistenciaService.findAsistencia(any(), any(), any(), any(), anyInt()))
+                .thenThrow(new SidepException("Error", null));
+        asistenciaController.findAsistencia(null, null, null, null, 12345678, request);
     }
 
     @Test
@@ -128,5 +158,14 @@ public class AsistenciaControllerTest {
         verify(asistenciaService, times(1)).findAllAsistencia(
                 anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyInt()
         );
+    }
+
+    @Test(expected = SidepException.class)
+    public void findAllAsistencia_exception() {
+        when(asistenciaService.findAllAsistencia(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyInt()))
+                .thenThrow(new SidepException("Error", null));
+        asistenciaController.findAllAsistencia("2020-01-01", "2020-12-31",
+                "EstablecimientoX", "RegionX", "ProvinciaX", "ComunaX",
+                20, 0, request);
     }
 }
