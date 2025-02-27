@@ -83,16 +83,16 @@ public class AsistenciaRepositoryTest {
 
     @Test
     public void update_ok() {
-        doNothing().when(asistenciaMapper).update(any(AsistenciaEntity.class), anyLong());
+        doNothing().when(asistenciaMapper).update(any(AsistenciaEntity.class));
         AsistenciaEntity e = new AsistenciaEntity();
         e.setId(10L);
         asistenciaRepository.update(e);
-        verify(asistenciaMapper, times(1)).update(any(AsistenciaEntity.class), eq(10L));
+        verify(asistenciaMapper, times(1)).update(any(AsistenciaEntity.class));
     }
 
     @Test(expected = SidepException.class)
     public void update_exception() {
-        doThrow(MyBatisSystemException.class).when(asistenciaMapper).update(any(), anyLong());
+        doThrow(MyBatisSystemException.class).when(asistenciaMapper).update(any());
         AsistenciaEntity e = new AsistenciaEntity();
         e.setId(10L);
         asistenciaRepository.update(e);

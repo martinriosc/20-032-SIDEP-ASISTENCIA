@@ -5,8 +5,10 @@ import cl.mineduc.sidep.asistenciaapi.exceptions.SidepException;
 import cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaIndividualModel;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaModel;
+import cl.mineduc.sidep.asistenciaapi.model.CalendarioModel;
 import cl.mineduc.sidep.asistenciaapi.model.PaginationResultModel;
 import cl.mineduc.sidep.asistenciaapi.repositories.AsistenciaRepository;
+import cl.mineduc.sidep.asistenciaapi.repositories.CalendarioRepository;
 import cl.mineduc.sidep.asistenciaapi.services.IAsistenciaService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +27,7 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
     private static final int DEFAULT_PAGE_SIZE = 20;
 
     private final AsistenciaRepository asistenciaRepository;
+    private final CalendarioRepository calendarioRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -32,22 +35,37 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
     @Transactional
     public AsistenciaModel updateAsistenciaPupiloPorDia(AsistenciaIndividualModel asistenciaModel) {
         try {
-
             log.info("updateAsistenciaPupiloPorDia: {}", asistenciaModel);
 
+            // 1) Validar si el calendario (vía FK en la Asistencia) está 'trabajado'
+            //    - asumiendo que AsistenciaIndividualModel trae un campo "calendarioId"
+            //      o algo similar, y que tenemos un CalendarioRepository con un findById
+            if (asistenciaModel.getCalendarioId() != null) {
+                CalendarioModel cal = calendarioRepository.findById(asistenciaModel.getCalendarioId());
+                if (cal != null && Boolean.TRUE.equals(cal.getTrabajado())) {
+                    throw new SidepException("No se puede actualizar asistencia: el calendario está trabajado", null);
+                }
+            }
+
+            // 2) Convertir a entity
             AsistenciaEntity entity = toEntity(asistenciaModel);
 
+            // 3) Crear o actualizar
             if (entity.getId() == null) {
                 this.asistenciaRepository.save(entity);
             } else {
                 this.asistenciaRepository.update(entity);
             }
+
+            // 4) Retornar la asistencia actualizada
             AsistenciaModel updated = this.asistenciaRepository.findById(entity.getId());
             return updated;
+
         } catch (MyBatisSystemException ex) {
             throw new SidepException("Error al consultar updateAsistenciaPupiloPorDia en AsistenciaRepository", ex);
         }
     }
+
 
     @Override
     @Transactional
@@ -110,6 +128,7 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             log.info("findAsistenciaPorMesAndDia: rbd={}, ensenanza={}, grado={}, letra={}, mes={}, dia={}, rut={}",
                     rbd, ensenanza, grado, letra, mes, dia, rut);
 
+            System.out.println("RUT" + rut);
             AsistenciaFilter filter = AsistenciaFilter.builder()
                     .rbd(rbd)
                     .ensenanza(ensenanza)
@@ -155,7 +174,7 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             if (pageNumber != null) {
                 int size = (pageSize != null) ? pageSize : DEFAULT_PAGE_SIZE;
                 filter.setOrder("ASC");
-                filter.setOrderBy("fecha");
+                filter.setOrderBy("asis_fecha_creacion");
                 filter.setLimit(size);
                 filter.setOffset(pageNumber * size);
             }
@@ -180,6 +199,10 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
     private AsistenciaEntity toEntity(AsistenciaIndividualModel m) {
         AsistenciaEntity e = new AsistenciaEntity();
         e.setId(m.getId());
+        // Copiar las claves foráneas
+        e.setCalendarioId(m.getCalendarioId());
+        // Si tu modelo tuviera la propiedad para matriculaGrupoId, haz lo mismo:
+        // e.setMatriculaGrupoId(m.getMatriculaGrupoId());
 
         try {
             String json = objectMapper.writeValueAsString(m);
@@ -191,4 +214,5 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
         e.setJsonAsistencia2(null);
         return e;
     }
+
 }

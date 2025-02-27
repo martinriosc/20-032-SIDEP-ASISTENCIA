@@ -12,4 +12,5 @@ public class CalendarioModel {
     private Boolean trabajado;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
+    private GrupoModel grupo;
 }

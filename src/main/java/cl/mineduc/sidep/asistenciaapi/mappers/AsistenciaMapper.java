@@ -10,8 +10,13 @@ import java.util.List;
 public interface AsistenciaMapper {
     List<AsistenciaModel> findAll(AsistenciaFilter filter);
     AsistenciaModel findById(@Param("id") Long id);
+
     Long insert(AsistenciaEntity entity);
-    void update(@Param("e") AsistenciaEntity entity, @Param("id") Long id);
+
+    // Un solo parámetro para update
+    void update(AsistenciaEntity entity);
+
     void delete(@Param("id") Long id);
+
     Long countTotal(AsistenciaFilter filter);
 }

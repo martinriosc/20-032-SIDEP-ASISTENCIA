@@ -33,13 +33,13 @@ public class AsistenciaController {
 
     @GetMapping("/asistencia/{rbd}/ensenanza/{ensenanza}/grado/{grado}/letra/{letra}/mes/{mes}/dia/{dia}/rut/{rut}")
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAsistenciaPorMesAndDia(
-            @RequestParam(name = "rbd", required = false) String rbd,
-            @RequestParam(name = "ensenanza", required = false) String ensenanza,
-            @RequestParam(name = "grado", required = false) String grado,
-            @RequestParam(name = "letra", required = false) String letra,
-            @RequestParam(name = "mes", required = false) String mes,
-            @RequestParam(name = "dia", required = false) String dia,
-            @RequestParam(name = "rut") Integer rut,
+            @PathVariable(name = "rbd", required = false) String rbd,
+            @PathVariable(name = "ensenanza", required = false) String ensenanza,
+            @PathVariable(name = "grado", required = false) String grado,
+            @PathVariable(name = "letra", required = false) String letra,
+            @PathVariable(name = "mes", required = false) String mes,
+            @PathVariable(name = "dia", required = false) String dia,
+            @PathVariable(name = "rut") Integer rut,
             HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(this.asistenciaService.findAsistenciaPorMesAndDia(
@@ -48,11 +48,11 @@ public class AsistenciaController {
 
     @GetMapping("/asistencia/{rbd}/ensenanza/{ensenanza}/grado/{grado}/letra/{letra}/rut/{rut}")
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAsistencia(
-            @RequestParam(name = "rbd", required = false) String rbd,
-            @RequestParam(name = "ensenanza", required = false) String ensenanza,
-            @RequestParam(name = "grado", required = false) String grado,
-            @RequestParam(name = "letra", required = false) String letra,
-            @RequestParam(name = "rut") Integer rut,
+            @PathVariable(name = "rbd", required = false) String rbd,
+            @PathVariable(name = "ensenanza", required = false) String ensenanza,
+            @PathVariable(name = "grado", required = false) String grado,
+            @PathVariable(name = "letra", required = false) String letra,
+            @PathVariable(name = "rut") Integer rut,
             HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(this.asistenciaService.findAsistencia(
@@ -61,14 +61,14 @@ public class AsistenciaController {
 
     @GetMapping("/asistencia")
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAllAsistencia(
-            @RequestParam(name = "periodoDesde", required = false) String periodoDesde,
-            @RequestParam(name = "periodoHasta", required = false) String periodoHasta,
-            @RequestParam(name = "establecimiento", required = false) String establecimiento,
-            @RequestParam(name = "region", required = false) String region,
-            @RequestParam(name = "provincia", required = false) String provincia,
-            @RequestParam(name = "comuna", required = false) String comuna,
-            @RequestParam(name = "pageSize") Integer pageSize,
-            @RequestParam(name = "pageNumber") Integer pageNumber,
+            @PathVariable(name = "periodoDesde", required = false) String periodoDesde,
+            @PathVariable(name = "periodoHasta", required = false) String periodoHasta,
+            @PathVariable(name = "establecimiento", required = false) String establecimiento,
+            @PathVariable(name = "region", required = false) String region,
+            @PathVariable(name = "provincia", required = false) String provincia,
+            @PathVariable(name = "comuna", required = false) String comuna,
+            @PathVariable(name = "pageSize", required = false) Integer pageSize,
+            @PathVariable(name = "pageNumber", required = false) Integer pageNumber,
             HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(this.asistenciaService.findAllAsistencia(

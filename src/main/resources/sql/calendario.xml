@@ -13,10 +13,12 @@
         <result property="fechaActualizacion" column="cale_fecha_actualizacion"/>
 
         <!-- Asociación con grupo -->
-        <association property="id" javaType="cl.mineduc.sidep.asistenciaapi.model.GrupoModel">
+        <association property="grupo" javaType="cl.mineduc.sidep.asistenciaapi.model.GrupoModel">
             <id property="id" column="pk_grup_id_grupo"/>
             <result property="letra" column="grup_letra"/>
         </association>
+
+
     </resultMap>
 
     <sql id="selectCalendario">
@@ -33,33 +35,41 @@
                  LEFT JOIN grupo g ON g.pk_grup_id_grupo = c.fk_cale_id_grupo
     </sql>
 
-    <insert id="insert" parameterType="cl.mineduc.sidep.asistenciaapi.entities.CalendarioEntity"
-            useGeneratedKeys="true" keyProperty="id" keyColumn="pk_cale_id_calendario">
-        INSERT INTO calendario
+    <insert id="insert" parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="pk_asis_id_asistencia">
+        INSERT INTO asistencia
         (
-            fk_cale_id_grupo,
-            cale_fecha,
-            cale_trabajado,
-            cale_fecha_creacion
+            fk_asis_id_calendario,
+            fk_asis_id_matricula_grupo,
+            asis_json_asistencia,
+            asis_json_asistencia_2,
+            asis_fecha_creacion
         )
         VALUES
             (
-                #{grupo},
-                #{fecha},
-                #{trabajado},
+                #{calendarioId},
+                #{matriculaGrupoId},
+                CAST(#{jsonAsistencia} AS json),
+                CAST(#{jsonAsistencia2} AS json),
                 CURRENT_TIMESTAMP
             )
     </insert>
 
-    <update id="update" parameterType="cl.mineduc.sidep.asistenciaapi.entities.CalendarioEntity">
-        UPDATE calendario
+
+    <update id="update"
+            parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity">
+        UPDATE asistencia
         SET
-            fk_cale_id_grupo = #{grupo},
-            cale_fecha = #{fecha},
-            cale_trabajado = #{trabajado},
-            cale_fecha_actualizacion = CURRENT_TIMESTAMP
-        WHERE pk_cale_id_calendario = #{id}
+            fk_asis_id_calendario        = #{calendarioId},
+            fk_asis_id_matricula_grupo   = #{matriculaGrupoId},
+            asis_json_asistencia         = CAST(#{jsonAsistencia} AS json),
+            asis_json_asistencia_2       = CAST(#{jsonAsistencia2} AS json),
+            asis_fecha_actualizacion     = CURRENT_TIMESTAMP
+        WHERE pk_asis_id_asistencia = #{id}
     </update>
+
+
+
 
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM calendario

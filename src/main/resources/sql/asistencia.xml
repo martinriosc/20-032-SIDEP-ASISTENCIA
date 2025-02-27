@@ -8,23 +8,50 @@
     <resultMap id="asistenciaResultMap" type="cl.mineduc.sidep.asistenciaapi.model.AsistenciaModel">
         <!-- PK -->
         <id property="id" column="pk_asis_id_asistencia" />
+
         <!-- Fechas directas -->
         <result property="fechaRegistro" column="asis_fecha_creacion" />
         <result property="fechaActualizacion" column="asis_fecha_actualizacion" />
 
+        <!-- FK a calendario -->
+        <result property="calendarioId" column="fk_asis_id_calendario" />
+
+        <!-- FK a matricula_grupo -->
+        <result property="matriculaGrupoId" column="fk_asis_id_matricula_grupo" />
+
+        <!-- JSONS (si tu AsistenciaModel tiene esos campos) -->
+        <result property="jsonAsistencia" column="asis_json_asistencia" />
+        <result property="jsonAsistencia2" column="asis_json_asistencia_2" />
+
+        <!-- Ejemplo de campos de calendario -->
+        <result property="calendarioFecha" column="cale_fecha" />
+        <result property="calendarioTrabajado" column="cale_trabajado" />
+
     </resultMap>
 
-    <!-- Reusable SQL para SELECT principal -->
+
     <sql id="selectAsistencia">
         SELECT
             a.pk_asis_id_asistencia,
             a.asis_fecha_creacion,
-            a.asis_fecha_actualizacion
+            a.asis_fecha_actualizacion,
+            -- Claves foráneas
+            a.fk_asis_id_calendario,
+            a.fk_asis_id_matricula_grupo,
+            -- JSONs
+            a.asis_json_asistencia,
+            a.asis_json_asistencia_2,
+            -- Campos de calendario (si necesitas)
+            c.cale_fecha,
+            c.cale_trabajado
         FROM asistencia a
+                 LEFT JOIN calendario c ON a.fk_asis_id_calendario = c.pk_cale_id_calendario
+                 LEFT JOIN matricula_grupo mg ON a.fk_asis_id_matricula_grupo = mg.pk_matg_id_matricula_grupo
     </sql>
 
-    <!-- INSERT -->
-    <insert id="insert" parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity"
+
+    <insert id="insert"
+            parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity"
             useGeneratedKeys="true" keyProperty="id" keyColumn="pk_asis_id_asistencia">
         INSERT INTO asistencia
         (
@@ -36,85 +63,59 @@
         )
         VALUES
             (
-                #{calendario},
-                #{matriculaGrupo},
+                #{calendarioId},
+                #{matriculaGrupoId},
                 #{jsonAsistencia},
                 #{jsonAsistencia2},
                 CURRENT_TIMESTAMP
             )
     </insert>
 
-    <!-- UPDATE -->
-    <update id="update" parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity">
+    <update id="update"
+            parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity">
         UPDATE asistencia
         SET
-            fk_asis_id_calendario        = #{calendario},
-            fk_asis_id_matricula_grupo   = #{matriculaGrupo},
-            asis_json_asistencia         = #{jsonAsistencia},
-            asis_json_asistencia_2       = #{jsonAsistencia2},
-            asis_fecha_actualizacion     = CURRENT_TIMESTAMP
+            fk_asis_id_calendario    = #{calendarioId},
+            fk_asis_id_matricula_grupo = #{matriculaGrupoId},
+            asis_json_asistencia     = #{jsonAsistencia},
+            asis_json_asistencia_2   = #{jsonAsistencia2},
+            asis_fecha_actualizacion = CURRENT_TIMESTAMP
         WHERE pk_asis_id_asistencia = #{id}
     </update>
+
 
     <!-- DELETE -->
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM asistencia
         WHERE pk_asis_id_asistencia = #{id}
     </delete>
-
-    <!-- SELECT findAll -->
-    <select id="findAll" resultMap="asistenciaResultMap" parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter">
-        <include refid="selectAsistencia"/>
-        WHERE 1=1
-
-        <!--
-          Condiciones basadas en los campos de AsistenciaFilter.
-          Ajusta si tu tabla no tiene esas columnas directas
-          (por ejemplo, "a.rbd" debe existir).
-        -->
-        <if test="rbd != null">
-            AND a.rbd = #{rbd}
-        </if>
-        <if test="ensenanza != null">
-            AND a.ensenanza = #{ensenanza}
-        </if>
-        <if test="grado != null">
-            AND a.grado = #{grado}
-        </if>
-        <if test="letra != null">
-            AND a.letra = #{letra}
-        </if>
-        <if test="mes != null">
-            -- Ejemplo:
-            -- AND EXTRACT(MONTH FROM a.asis_fecha_creacion) = #{mes}
-            -- Ajusta según tu motor de DB (MySQL, Postgres, etc.)
-        </if>
-        <if test="dia != null">
-            -- Ejemplo:
-            -- AND EXTRACT(DAY FROM a.asis_fecha_creacion) = #{dia}
-        </if>
-        <if test="rut != null">
-            AND a.rut = #{rut}
-        </if>
-        <if test="periodoDesde != null">
-            AND a.asis_fecha_creacion &gt;= CAST(#{periodoDesde} AS DATE)
-        </if>
-        <if test="periodoHasta != null">
-            AND a.asis_fecha_creacion &lt;= CAST(#{periodoHasta} AS DATE)
-        </if>
-        <if test="establecimiento != null">
-            AND a.establecimiento = #{establecimiento}
-        </if>
-        <if test="region != null">
-            AND a.region = #{region}
-        </if>
-        <if test="provincia != null">
-            AND a.provincia = #{provincia}
-        </if>
-        <if test="comuna != null">
-            AND a.comuna = #{comuna}
-        </if>
-
+    <select id="findAll"
+            resultMap="asistenciaResultMap"
+            parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter">
+        <include refid="selectAsistencia" />
+        <where>
+            <if test="rbd != null">
+                AND a.asis_json_asistencia::json->>'rbd' = #{rbd}
+            </if>
+            <if test="ensenanza != null">
+                AND a.asis_json_asistencia::json->>'ensenanza' = #{ensenanza}
+            </if>
+            <if test="grado != null">
+                AND a.asis_json_asistencia::json->>'grado' = #{grado}
+            </if>
+            <if test="letra != null">
+                AND a.asis_json_asistencia::json->>'letra' = #{letra}
+            </if>
+            <if test="rut != null">
+                AND a.asis_json_asistencia::json->>'rut' = CAST(#{rut} AS text)
+            </if>
+            <if test="periodoDesde != null">
+                AND a.asis_fecha_creacion &gt;= CAST(#{periodoDesde} AS DATE)
+            </if>
+            <if test="periodoHasta != null">
+                AND a.asis_fecha_creacion &lt;= CAST(#{periodoHasta} AS DATE)
+            </if>
+        </where>
         <if test="orderBy != null">
             ORDER BY ${orderBy} ${order}
         </if>
@@ -123,32 +124,26 @@
         </if>
     </select>
 
-    <!-- SELECT countTotal -->
+
+
     <select id="countTotal" parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter" resultType="java.lang.Long">
         SELECT COUNT(a.pk_asis_id_asistencia)
         FROM asistencia a
         WHERE 1=1
-
         <if test="rbd != null">
-            AND a.rbd = #{rbd}
+            AND a.asis_json_asistencia::json->>'rbd' = #{rbd}
         </if>
         <if test="ensenanza != null">
-            AND a.ensenanza = #{ensenanza}
+            AND a.asis_json_asistencia::json->>'ensenanza' = #{ensenanza}
         </if>
         <if test="grado != null">
-            AND a.grado = #{grado}
+            AND a.asis_json_asistencia::json->>'grado' = #{grado}
         </if>
         <if test="letra != null">
-            AND a.letra = #{letra}
-        </if>
-        <if test="mes != null">
-            -- AND EXTRACT(MONTH FROM a.asis_fecha_creacion) = #{mes}
-        </if>
-        <if test="dia != null">
-            -- AND EXTRACT(DAY FROM a.asis_fecha_creacion) = #{dia}
+            AND a.asis_json_asistencia::json->>'letra' = #{letra}
         </if>
         <if test="rut != null">
-            AND a.rut = #{rut}
+            AND a.asis_json_asistencia::json->>'rut' = CAST(#{rut} AS text)
         </if>
         <if test="periodoDesde != null">
             AND a.asis_fecha_creacion &gt;= CAST(#{periodoDesde} AS DATE)
@@ -156,19 +151,9 @@
         <if test="periodoHasta != null">
             AND a.asis_fecha_creacion &lt;= CAST(#{periodoHasta} AS DATE)
         </if>
-        <if test="establecimiento != null">
-            AND a.establecimiento = #{establecimiento}
-        </if>
-        <if test="region != null">
-            AND a.region = #{region}
-        </if>
-        <if test="provincia != null">
-            AND a.provincia = #{provincia}
-        </if>
-        <if test="comuna != null">
-            AND a.comuna = #{comuna}
-        </if>
+        <!-- Si necesitas otros filtros, agrégalos de forma similar -->
     </select>
+
 
     <!-- SELECT findById -->
     <select id="findById" resultMap="asistenciaResultMap" parameterType="java.lang.Long">

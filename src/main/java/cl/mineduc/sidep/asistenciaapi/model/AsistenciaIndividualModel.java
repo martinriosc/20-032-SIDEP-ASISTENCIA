@@ -32,9 +32,11 @@ public class AsistenciaIndividualModel {
     @NotNull(message = "RUN no puede estar vacio")
     private Integer rut;
 
-    @NotBlank(message = "Flag presente no puede estar vacio")
+    @NotNull(message = "Flag presente no puede estar vacio")
     private Boolean presente;
 
     private LocalDate fecha;
+
+    private Long calendarioId;
 
 }

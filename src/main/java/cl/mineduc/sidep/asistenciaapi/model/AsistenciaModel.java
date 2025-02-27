@@ -15,6 +15,12 @@ public class AsistenciaModel {
     private Integer rut;
     private LocalDate fecha;
     private Boolean asistio;
+    private Long calendarioId;
+    private Long matriculaGrupoId;
+    private String jsonAsistencia;
+    private String jsonAsistencia2;
+    private LocalDate calendarioFecha;
+    private Boolean calendarioTrabajado;
     private LocalDateTime fechaRegistro;
     private LocalDateTime fechaActualizacion;
 }

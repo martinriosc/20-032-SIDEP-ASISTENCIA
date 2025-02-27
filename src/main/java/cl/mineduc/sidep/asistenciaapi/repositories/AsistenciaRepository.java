@@ -44,7 +44,7 @@ public class AsistenciaRepository {
      */
     public void update(AsistenciaEntity entity) {
         try {
-            asistenciaMapper.update(entity, entity.getId());
+            asistenciaMapper.update(entity);
         } catch (MyBatisSystemException e) {
             throw new SidepException("Error al actualizar la asistencia", e);
         }
