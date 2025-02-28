@@ -128,7 +128,6 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             log.info("findAsistenciaPorMesAndDia: rbd={}, ensenanza={}, grado={}, letra={}, mes={}, dia={}, rut={}",
                     rbd, ensenanza, grado, letra, mes, dia, rut);
 
-            System.out.println("RUT" + rut);
             AsistenciaFilter filter = AsistenciaFilter.builder()
                     .rbd(rbd)
                     .ensenanza(ensenanza)
