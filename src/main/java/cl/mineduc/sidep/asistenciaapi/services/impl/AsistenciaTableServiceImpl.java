@@ -1,7 +1,6 @@
 package cl.mineduc.sidep.asistenciaapi.services.impl;
 
 import cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity;
-import cl.mineduc.sidep.asistenciaapi.exceptions.SidepException;
 import cl.mineduc.sidep.asistenciaapi.exceptions.SostenedorException;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaIndividualModel;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaModel;
@@ -22,7 +21,7 @@ public class AsistenciaTableServiceImpl implements AsistenciaTableService {
     public AsistenciaModel save(AsistenciaIndividualModel asistencia) {
         Long grupo = checkFound(
                 this.asistenciaTableRepository.findGrupoByRbdLetraNivelJornada(
-                        asistencia.getNivelGrado(),
+                        asistencia.getGrado(),
                         asistencia.getLetra(),
                         asistencia.getJornada().getId(),
                         asistencia.getRbd()

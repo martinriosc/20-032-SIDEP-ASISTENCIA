@@ -26,7 +26,7 @@ public interface AsistenciaTableService {
 
         model.setId(entity.getId());
         model.setRbd(asistencia.getRbd().toString());
-        model.setNivelGrado(String.valueOf(asistencia.getNivelGrado()));
+        model.setNivelGrado(asistencia.getGrado().toString());
         model.setLetra(asistencia.getLetra());
         model.setRut(asistencia.getRut());
 
@@ -35,8 +35,8 @@ public interface AsistenciaTableService {
 
         model.setCalendarioId(entity.getCalendarioId());
         model.setMatriculaGrupoId(entity.getMatriculaGrupoId());
-        model.setJsonAsistencia(entity.getJsonAsistencia());
-        model.setJsonAsistencia2(entity.getJsonAsistencia2());
+        //model.setJsonAsistencia(entity.getJsonAsistencia());
+        //model.setJsonAsistencia2(entity.getJsonAsistencia2());
         model.setFechaRegistro(entity.getFechaCreacion());
         model.setFechaActualizacion(entity.getFechaActualizacion());
 

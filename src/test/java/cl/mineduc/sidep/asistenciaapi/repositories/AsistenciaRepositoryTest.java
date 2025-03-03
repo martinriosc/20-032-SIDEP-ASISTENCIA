@@ -68,7 +68,12 @@ public class AsistenciaRepositoryTest {
 
     @Test
     public void save_ok() {
-        when(asistenciaMapper.insert(any(AsistenciaEntity.class))).thenReturn(1L);
+        doAnswer(invocation -> {
+            AsistenciaEntity entity = invocation.getArgument(0);
+            entity.setId(1L);
+            return 1L;
+        }).when(asistenciaMapper).insert(any(AsistenciaEntity.class));
+
         AsistenciaEntity e = new AsistenciaEntity();
         asistenciaRepository.save(e);
         assertEquals(Long.valueOf(1L), e.getId());

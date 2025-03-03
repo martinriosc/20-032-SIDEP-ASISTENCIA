@@ -47,6 +47,12 @@ public class AsistenciaServiceImplTest {
         AsistenciaIndividualModel input = new AsistenciaIndividualModel();
         input.setRut(12345678);
         input.setPresente(true);
+        input.setDia("15");
+        input.setMes("03");
+
+        CalendarioModel calendario = new CalendarioModel();
+        calendario.setTrabajado(false);
+        when(calendarioRepository.findByDiaMes(15, 3)).thenReturn(calendario);
 
         // Caso sin calendario (o calendario no seteado)
         doAnswer(invocation -> {
@@ -78,8 +84,15 @@ public class AsistenciaServiceImplTest {
         input.setId(10L);
         input.setRut(12345678);
         input.setPresente(false);
+        input.setDia("15");
+        input.setMes("03");
+        input.setCalendarioId(10L);
 
-        doNothing().when(asistenciaRepository).update(any(AsistenciaEntity.class));
+        CalendarioModel calendario = new CalendarioModel();
+        calendario.setTrabajado(false);
+        when(calendarioRepository.findByDiaMes(15, 3)).thenReturn(calendario);
+
+        when(asistenciaRepository.update(any(AsistenciaEntity.class))).thenReturn(null);
 
         AsistenciaModel mockedDbRecord = new AsistenciaModel();
         mockedDbRecord.setId(10L);
@@ -116,10 +129,12 @@ public class AsistenciaServiceImplTest {
         AsistenciaIndividualModel input = new AsistenciaIndividualModel();
         input.setRut(12345678);
         input.setCalendarioId(100L);
+        input.setDia("15");
+        input.setMes("03");
 
         CalendarioModel calendario = new CalendarioModel();
         calendario.setTrabajado(false);
-        when(calendarioRepository.findById(100L)).thenReturn(calendario);
+        when(calendarioRepository.findByDiaMes(15, 3)).thenReturn(calendario);
 
         doAnswer(invocation -> {
             AsistenciaEntity e = invocation.getArgument(0);
@@ -163,7 +178,8 @@ public class AsistenciaServiceImplTest {
             e.setId(1L);
             return null;
         }).when(asistenciaRepository).save(any(AsistenciaEntity.class));
-        doNothing().when(asistenciaRepository).update(any(AsistenciaEntity.class));
+
+        when(asistenciaRepository.update(any(AsistenciaEntity.class))).thenReturn(null);
 
         AsistenciaModel mockedDbRecord = new AsistenciaModel();
         mockedDbRecord.setId(1L);
@@ -173,9 +189,11 @@ public class AsistenciaServiceImplTest {
 
         List<AsistenciaIndividualModel> asistencias = Arrays.asList(a1, a2);
 
-        AsistenciaModel result = asistenciaService.updateAsistenciaGrupalPupiloPorDia(asistencias);
+        List<AsistenciaModel> result = asistenciaService.updateAsistenciaGrupalPupiloPorDia(asistencias);
         assertNotNull(result);
-        assertTrue(result.getAsistio());
+        for (AsistenciaModel model : result) {
+            assertTrue(model.getAsistio());
+        }
         verify(asistenciaRepository, times(2)).findById(anyLong());
     }
 
@@ -198,7 +216,7 @@ public class AsistenciaServiceImplTest {
                 .thenReturn(1L);
 
         PaginationResultModel<AsistenciaModel> result =
-                asistenciaService.findAsistencia("123", "ENSE", "1", "A", 11111111);
+                asistenciaService.findAsistencia("123", "ENSE", "1", "A", 11111111L);
 
         assertNotNull(result);
         assertEquals(Long.valueOf(1L), result.getTotalElementos());
@@ -209,7 +227,7 @@ public class AsistenciaServiceImplTest {
     public void findAsistencia_exception() {
         doThrow(new MyBatisSystemException(new Exception()))
                 .when(asistenciaRepository).findAll(any());
-        asistenciaService.findAsistencia("123", "ENSE", "1", "A", 11111111);
+        asistenciaService.findAsistencia("123", "ENSE", "1", "A", 11111111L);
     }
 
     @Test
@@ -220,7 +238,7 @@ public class AsistenciaServiceImplTest {
                 .thenReturn(0L);
 
         PaginationResultModel<AsistenciaModel> result =
-                asistenciaService.findAsistenciaPorMesAndDia("123", "ENSE", "1", "A", "01", "15", 11111111);
+                asistenciaService.findAsistenciaPorMesAndDia("123", "ENSE", "1", "A", "01", "15", 11111111L);
 
         assertNotNull(result);
         assertEquals(Long.valueOf(0L), result.getTotalElementos());
@@ -231,7 +249,7 @@ public class AsistenciaServiceImplTest {
     public void findAsistenciaPorMesAndDia_exception() {
         doThrow(new MyBatisSystemException(new Exception()))
                 .when(asistenciaRepository).findAll(any());
-        asistenciaService.findAsistenciaPorMesAndDia("123", "ENSE", "1", "A", "01", "15", 11111111);
+        asistenciaService.findAsistenciaPorMesAndDia("123", "ENSE", "1", "A", "01", "15", 11111111L);
     }
 
     @Test

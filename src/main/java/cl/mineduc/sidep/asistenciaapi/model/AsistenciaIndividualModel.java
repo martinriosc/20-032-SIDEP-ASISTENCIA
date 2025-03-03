@@ -10,6 +10,8 @@ import java.time.LocalDate;
 @Data
 public class AsistenciaIndividualModel {
 
+    private Long id;
+
     @NotNull(message = "RBD no puede estar vacio")
     private Integer rbd;
 
