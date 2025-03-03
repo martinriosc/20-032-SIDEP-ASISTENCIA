@@ -1,5 +1,6 @@
 package cl.mineduc.sidep.asistenciaapi.model;
 
+import cl.mineduc.sidep.asistenciaapi.enums.TipoJornada;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -9,16 +10,11 @@ import java.time.LocalDate;
 @Data
 public class AsistenciaIndividualModel {
 
-    private Long id;
+    @NotNull(message = "RBD no puede estar vacio")
+    private Integer rbd;
 
-    @NotBlank(message = "RBD no puede estar vacio")
-    private String rbd;
-
-    @NotBlank(message = "Ensenanza no puede estar vacio")
-    private String ensenanza;
-
-    @NotBlank(message = "Grado no puede estar vacio")
-    private String grado;
+    @NotNull(message = "Grado no puede estar vacio")
+    private Long nivelGrado;
 
     @NotBlank(message = "Letra no puede estar vacio")
     private String letra;
@@ -35,8 +31,8 @@ public class AsistenciaIndividualModel {
     @NotNull(message = "Flag presente no puede estar vacio")
     private Boolean presente;
 
-    private LocalDate fecha;
-
     private Long calendarioId;
+
+    private TipoJornada jornada;
 
 }

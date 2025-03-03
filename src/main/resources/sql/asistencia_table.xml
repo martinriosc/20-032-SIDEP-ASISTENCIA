@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cl.mineduc.sidep.asistenciaapi.mappers.AsistenciaTableMapper">
+
+    <resultMap id="asistenciaResultMap" type="cl.mineduc.sidep.asistenciaapi.model.AsistenciaModel">
+        <id property="id" column="pk_asis_id_asistencia" />
+        <result property="fechaRegistro" column="asis_fecha_creacion" />
+        <result property="fechaActualizacion" column="asis_fecha_actualizacion" />
+        <result property="calendarioId" column="fk_asis_id_calendario" />
+        <result property="matriculaGrupoId" column="fk_asis_id_matricula_grupo" />
+        <result property="jsonAsistencia" column="asis_json_asistencia" />
+        <result property="jsonAsistencia2" column="asis_json_asistencia_2" />
+        <result property="calendarioFecha" column="cale_fecha" />
+        <result property="calendarioTrabajado" column="cale_trabajado" />
+
+    </resultMap>
+
+
+    <sql id="selectAsistencia">
+        SELECT
+            a.pk_asis_id_asistencia,
+            a.asis_fecha_creacion,
+            a.asis_fecha_actualizacion,
+            a.fk_asis_id_calendario,
+            a.fk_asis_id_matricula_grupo,
+            a.asis_json_asistencia,
+            a.asis_json_asistencia_2,
+            c.cale_fecha,
+            c.cale_trabajado
+        FROM asistencia a
+                 LEFT JOIN calendario c ON a.fk_asis_id_calendario = c.pk_cale_id_calendario
+                 LEFT JOIN matricula_grupo mg ON a.fk_asis_id_matricula_grupo = mg.pk_matg_id_matricula_grupo
+    </sql>
+
+
+    <insert id="insert"
+            parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="pk_asis_id_asistencia">
+        INSERT INTO asistencia
+        (
+            fk_asis_id_calendario,
+            fk_asis_id_matricula_grupo,
+            asis_fecha_creacion
+        )
+        VALUES
+        (
+            #{calendarioId},
+            #{matriculaGrupoId},
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <update id="update"
+            parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity">
+        UPDATE asistencia
+        SET
+            fk_asis_id_calendario    = #{as.calendario},
+            fk_asis_id_matricula_grupo = #{as.matriculaGrupo},
+            asis_json_asistencia     = #{as.jsonAsistencia},
+            asis_json_asistencia_2   = #{as.jsonAsistencia2},
+            asis_fecha_actualizacion = CURRENT_TIMESTAMP
+        WHERE pk_asis_id_asistencia = #{id}
+    </update>
+
+    <select id="findAll"
+            resultMap="asistenciaResultMap"
+            parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter">
+        <include refid="selectAsistencia" />
+        <where>
+            <if test="rbd != null">
+                AND a.asis_json_asistencia::json->>'rbd' = #{rbd}
+            </if>
+            <if test="ensenanza != null">
+                AND a.asis_json_asistencia::json->>'ensenanza' = #{ensenanza}
+            </if>
+            <if test="grado != null">
+                AND a.asis_json_asistencia::json->>'grado' = #{grado}
+            </if>
+            <if test="letra != null">
+                AND a.asis_json_asistencia::json->>'letra' = #{letra}
+            </if>
+            <if test="rut != null">
+                AND a.asis_json_asistencia::json->>'rut' = CAST(#{rut} AS text)
+            </if>
+            <if test="periodoDesde != null">
+                AND a.asis_fecha_creacion &gt;= CAST(#{periodoDesde} AS DATE)
+            </if>
+            <if test="periodoHasta != null">
+                AND a.asis_fecha_creacion &lt;= CAST(#{periodoHasta} AS DATE)
+            </if>
+        </where>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy} ${order}
+        </if>
+        <if test="limit != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countTotal" parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter" resultType="java.lang.Long">
+        SELECT COUNT(a.pk_asis_id_asistencia)
+        FROM asistencia a
+        WHERE 1=1
+        <if test="rbd != null">
+            AND a.asis_json_asistencia::json->>'rbd' = #{rbd}
+        </if>
+        <if test="ensenanza != null">
+            AND a.asis_json_asistencia::json->>'ensenanza' = #{ensenanza}
+        </if>
+        <if test="grado != null">
+            AND a.asis_json_asistencia::json->>'grado' = #{grado}
+        </if>
+        <if test="letra != null">
+            AND a.asis_json_asistencia::json->>'letra' = #{letra}
+        </if>
+        <if test="rut != null">
+            AND a.asis_json_asistencia::json->>'rut' = CAST(#{rut} AS text)
+        </if>
+        <if test="periodoDesde != null">
+            AND a.asis_fecha_creacion &gt;= CAST(#{periodoDesde} AS DATE)
+        </if>
+        <if test="periodoHasta != null">
+            AND a.asis_fecha_creacion &lt;= CAST(#{periodoHasta} AS DATE)
+        </if>
+    </select>
+
+    <select id="findById" resultMap="asistenciaResultMap" parameterType="java.lang.Long">
+        <include refid="selectAsistencia"/>
+        WHERE a.pk_asis_id_asistencia = #{id}
+    </select>
+
+    <select id="validarAsistencia" resultType="java.lang.Boolean">
+        <![CDATA[
+            SELECT (COUNT(*) > 0) AS cumple_regla
+            FROM matricula_grupo mg
+                     JOIN calendario c ON c.pk_cale_id_calendario = #{calendario}
+            WHERE mg.pk_matg_id_matricula_grupo = #{matriculaGrupo}
+              AND mg.matg_fecha_matricula <= c.cale_fecha
+              AND (
+                mg.matg_fecha_retiro IS NULL
+                    OR mg.matg_fecha_retiro > c.cale_fecha
+                )
+            ]]>
+    </select>
+
+    <select id="validarGrupoTieneDocenteAsistente" resultType="java.lang.Boolean">
+        SELECT (COUNT(*) > 0) AS cumple_docente_asistente
+        FROM planta_grupo pg
+        WHERE pg.fk_plgr_grupo_id = (
+            SELECT mg.fk_matg_id_grupo
+            FROM matricula_grupo mg
+            WHERE mg.pk_matg_id_matricula_grupo = #{matriculaGrupo}
+        )
+    </select>
+
+    <select id="validarFechaCalendarioHabil" resultType="java.lang.Boolean">
+        SELECT c.cale_trabajado
+        FROM calendario c
+        WHERE c.pk_cale_id_calendario = #{calendario}
+    </select>
+
+    <select id="findGrupoByRbdLetraNivelJornada" resultType="java.lang.Long">
+        SELECT g.pk_grup_id_grupo
+        FROM grupo g
+                 INNER JOIN grado grad         ON grad.pk_grad_id_grado = g.fk_grup_id_grado
+                 INNER JOIN nivel_grado ng     ON ng.pk_nivel_grado_id  = grad.fk_grad_id_nivel_grado
+                 INNER JOIN jornada j          ON j.pk_jorn_id_jornada  = g.fk_grup_id_jornada
+                 INNER JOIN tipo_jornada tj    ON tj.pk_tijo_id_tipo_jornada = j.fk_jorn_id_tipo_jornada
+                 INNER JOIN unidad_educativa ue
+                            ON ue.pk_uned_id_unidad_educativa = grad.fk_grad_id_unidad_educativa
+        WHERE ue.uned_rbd = #{rbd}
+          AND g.grup_letra = #{letra}
+          AND ng.pk_nivel_grado_id = #{nivelGrado}
+          AND tj.pk_tijo_id_tipo_jornada = #{tipoJornada}
+    </select>
+
+    <select id="findCalendarioByGrupo" resultType="java.lang.Long">
+        SELECT c.pk_cale_id_calendario
+        FROM calendario c
+        WHERE c.fk_cale_id_grupo = #{grupo}
+    </select>
+
+    <select id="findByRut" resultType="java.lang.Long">
+        SELECT pa.pk_parv_id_parvulo
+        FROM persona pe
+        INNER JOIN parvulo pa ON pa.fk_parv_id_persona = pe.pk_pers_id_persona
+        WHERE pe.pers_rut = #{rut}
+    </select>
+
+    <select id="findUnidadEducativaByRbd" resultType="java.lang.Long">
+        SELECT ue.pk_uned_id_unidad_educativa
+        FROM unidad_educativa ue
+        WHERE ue.uned_rbd = #{rbd}
+    </select>
+
+    <select id="findMatriculaUnidadEducativa"
+            resultType="java.lang.Long">
+        SELECT mue.pk_mued_id_matricula_unidad_educativa
+        FROM matricula_unidad_educativa mue
+        WHERE mue.fk_mued_id_parvulo = #{parvulo}
+          AND mue.fk_mued_id_unidad_educativa = #{unidadEducativa}
+    </select>
+
+    <select id="findMatriculaGrupo"
+            resultType="java.lang.Long">
+        SELECT mg.pk_matg_id_matricula_grupo
+        FROM matricula_grupo mg
+        WHERE mg.fk_matg_id_grupo = #{grupo}
+          AND mg.fk_matg_id_matricula_ue = #{matriculaUe}
+    </select>
+
+</mapper>
