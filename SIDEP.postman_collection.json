@@ -1,0 +1,194 @@
+{
+	"info": {
+		"_postman_id": "ad0416e8-15b7-45f8-9302-d3e955fc06d1",
+		"name": "SIDEP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15504600"
+	},
+	"item": [
+		{
+			"name": "http://localhost:9310/api-sidep-asistencia/api-asistencia-parv/asistencia",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"rbd\": \"1234\",\n  \"ensenanza\": \"GENERAL\",\n  \"grado\": \"1\",\n  \"letra\": \"A\",\n  \"mes\": \"2\",\n  \"dia\": \"26\",\n  \"rut\": 12345678,\n  \"presente\": true,\n  \"fecha\": \"2025-02-28\",\n  \"calendarioId\": 3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9310/api-sidep-asistencia/api-asistencia-parv/asistencia",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9310",
+					"path": [
+						"api-sidep-asistencia",
+						"api-asistencia-parv",
+						"asistencia"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9310/api-sidep-asistencia/api-asistencia-parv/asistencias",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"rbd\": \"1234\",\n        \"ensenanza\": \"GENERAL\",\n        \"grado\": \"1\",\n        \"letra\": \"A\",\n        \"mes\": \"2\",\n        \"dia\": \"26\",\n        \"rut\": 12345678,\n        \"presente\": true,\n        \"fecha\": \"2025-02-26\",\n        \"calendarioId\": 3\n    },\n    {\n        \"rbd\": \"1234\",\n        \"ensenanza\": \"GENERAL\",\n        \"grado\": \"1\",\n        \"letra\": \"A\",\n        \"mes\": \"2\",\n        \"dia\": \"27\",\n        \"rut\": 12345678,\n        \"presente\": true,\n        \"fecha\": \"2025-02-26\",\n        \"calendarioId\": 3\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9310/api-sidep-asistencia/api-asistencia-parv/asistencias",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9310",
+					"path": [
+						"api-sidep-asistencia",
+						"api-asistencia-parv",
+						"asistencias"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9310/api-sidep-asistencia/api-asistencia-parv/asistencia/get-dia-mes?rbd=9999995&letra=A&mes=2&dia=26",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9310/api-sidep-asistencia/api-asistencia-parv/asistencia/get-dia-mes?rbd=9999995&letra=A&mes=2&dia=26",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9310",
+					"path": [
+						"api-sidep-asistencia",
+						"api-asistencia-parv",
+						"asistencia",
+						"get-dia-mes"
+					],
+					"query": [
+						{
+							"key": "rbd",
+							"value": "9999995"
+						},
+						{
+							"key": "ensenanza",
+							"value": "Jornada 1",
+							"disabled": true
+						},
+						{
+							"key": "grado",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "letra",
+							"value": "A"
+						},
+						{
+							"key": "mes",
+							"value": "2"
+						},
+						{
+							"key": "dia",
+							"value": "26"
+						},
+						{
+							"key": "rut",
+							"value": "12345678",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:9310/api-sidep-asistencia/api-asistencia-parv/asistencia/get?rbd=9999995&letra=A",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9310/api-sidep-asistencia/api-asistencia-parv/asistencia/get?rbd=9999995&letra=A",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9310",
+					"path": [
+						"api-sidep-asistencia",
+						"api-asistencia-parv",
+						"asistencia",
+						"get"
+					],
+					"query": [
+						{
+							"key": "rbd",
+							"value": "9999995"
+						},
+						{
+							"key": "ensenanza",
+							"value": "Jornada 1",
+							"disabled": true
+						},
+						{
+							"key": "grado",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "letra",
+							"value": "A"
+						},
+						{
+							"key": "rut",
+							"value": "12345678",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
