@@ -14,7 +14,7 @@ public class AsistenciaIndividualModel {
     private Integer rbd;
 
     @NotNull(message = "Grado no puede estar vacio")
-    private Long nivelGrado;
+    private Long grado;
 
     @NotBlank(message = "Letra no puede estar vacio")
     private String letra;
