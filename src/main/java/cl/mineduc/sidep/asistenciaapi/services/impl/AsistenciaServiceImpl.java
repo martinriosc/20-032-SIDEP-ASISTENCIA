@@ -54,8 +54,7 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             }
 
             AsistenciaEntity entity = toEntityIndividual(asistenciaModel);
-
-            AsistenciaEntity savedAsistencia = null;
+            
             if (entity.getId() == null) {
                asistenciaRepository.save(entity);
             } else {
