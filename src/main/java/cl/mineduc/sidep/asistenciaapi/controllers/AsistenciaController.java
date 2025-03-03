@@ -3,6 +3,7 @@ package cl.mineduc.sidep.asistenciaapi.controllers;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaIndividualModel;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaModel;
 import cl.mineduc.sidep.asistenciaapi.model.PaginationResultModel;
+import cl.mineduc.sidep.asistenciaapi.services.AsistenciaTableService;
 import cl.mineduc.sidep.asistenciaapi.services.IAsistenciaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import java.util.List;
 public class AsistenciaController {
 
     private final IAsistenciaService asistenciaService;
+    private final AsistenciaTableService asistenciaTableService;
 
     @PutMapping("/asistencia")
     public ResponseEntity<AsistenciaModel> updateAsistenciaPupiloPorDia(@Valid @RequestBody AsistenciaIndividualModel asistenciaModel, HttpServletRequest request) {
@@ -75,5 +77,9 @@ public class AsistenciaController {
                 periodoDesde, periodoHasta, establecimiento, region, provincia, comuna, pageSize, pageNumber));
     }
 
+    @PostMapping("")
+    public ResponseEntity<AsistenciaModel> save(@Valid @RequestBody AsistenciaIndividualModel model) {
+        return ResponseEntity.ok(this.asistenciaTableService.save(model));
+    }
 
 }

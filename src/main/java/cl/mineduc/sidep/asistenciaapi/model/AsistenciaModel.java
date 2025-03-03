@@ -10,7 +10,7 @@ public class AsistenciaModel {
     private Long id;
     private String rbd;
     private String ensenanza;
-    private String grado;
+    private String nivelGrado;
     private String letra;
     private Integer rut;
     private LocalDate fecha;

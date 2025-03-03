@@ -197,7 +197,7 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
 
     private AsistenciaEntity toEntity(AsistenciaIndividualModel m) {
         AsistenciaEntity e = new AsistenciaEntity();
-        e.setId(m.getId());
+        //e.setId(m.getId());
         // Copiar las claves foráneas
         e.setCalendarioId(m.getCalendarioId());
         // Si tu modelo tuviera la propiedad para matriculaGrupoId, haz lo mismo:
