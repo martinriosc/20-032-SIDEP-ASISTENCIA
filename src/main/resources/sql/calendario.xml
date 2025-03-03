@@ -17,8 +17,6 @@
             <id property="id" column="pk_grup_id_grupo"/>
             <result property="letra" column="grup_letra"/>
         </association>
-
-
     </resultMap>
 
     <sql id="selectCalendario">
@@ -104,5 +102,20 @@
         <include refid="selectCalendario"/>
         WHERE c.pk_cale_id_calendario = #{id}
     </select>
+
+    <select id="findByDiaMes" parameterType="map" resultType="cl.mineduc.sidep.asistenciaapi.model.CalendarioModel">
+        SELECT
+            pk_cale_id_calendario AS id,
+            fk_cale_id_grupo AS grupoId,
+            cale_fecha,
+            cale_trabajado AS trabajado,
+            cale_fecha_creacion,
+            cale_fecha_actualizacion
+        FROM calendario
+        WHERE EXTRACT(DAY FROM cale_fecha) = #{dia}
+          AND EXTRACT(MONTH FROM cale_fecha) = #{mes}
+            LIMIT 1
+    </select>
+
 
 </mapper>

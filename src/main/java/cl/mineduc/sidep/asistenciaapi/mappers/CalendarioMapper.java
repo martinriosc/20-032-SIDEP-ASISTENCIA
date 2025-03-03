@@ -6,6 +6,7 @@ import cl.mineduc.sidep.asistenciaapi.model.CalendarioModel;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CalendarioMapper {
     List<CalendarioModel> findAll(CalendarioFilter filter);
@@ -14,4 +15,6 @@ public interface CalendarioMapper {
     void update(@Param("e") CalendarioEntity entity, @Param("id") Long id);
     void delete(@Param("id") Long id);
     Long countTotal(CalendarioFilter filter);
+
+    CalendarioModel findByDiaMes(Map<String, Object> params);
 }

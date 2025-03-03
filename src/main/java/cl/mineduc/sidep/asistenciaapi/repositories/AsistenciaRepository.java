@@ -40,27 +40,40 @@ public class AsistenciaRepository {
     }
 
     /**
-     * Actualiza una asistencia en la BDD.
+     * Actualiza una asistencia existente en la BDD y retorna la asistencia actualizada
+     * (cargada desde la BD).
      */
-    public void update(AsistenciaEntity entity) {
+    public AsistenciaModel update(AsistenciaEntity entity) {
         try {
             asistenciaMapper.update(entity);
+
+            // Retornamos la asistencia consultándola nuevamente desde la BD
+            // para obtener los datos frescos.
+            return this.findById(entity.getId());
+
         } catch (MyBatisSystemException e) {
             throw new SidepException("Error al actualizar la asistencia", e);
         }
     }
 
     /**
-     * Inserta una nueva asistencia y setea la PK generada en la entidad.
+     * Inserta una nueva asistencia en la BDD y retorna la asistencia creada
+     * (cargada desde la BD).
      */
-    public void save(AsistenciaEntity entity) {
+    public AsistenciaModel save(AsistenciaEntity entity) {
         try {
+            // Llamamos al mapper, que con `useGeneratedKeys="true"`
+            // nos devuelve la PK generada en 'entity.id'
             Long newId = asistenciaMapper.insert(entity);
-            entity.setId(newId);
+
+            // Retornamos la asistencia recién insertada, consultándola por su nuevo ID
+            return this.findById(newId);
+
         } catch (MyBatisSystemException e) {
             throw new SidepException("Error al insertar la asistencia", e);
         }
     }
+
 
     /**
      * Busca una asistencia por su ID.

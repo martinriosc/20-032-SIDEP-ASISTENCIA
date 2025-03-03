@@ -16,18 +16,18 @@ public interface IAsistenciaService {
     /**
      * Actualiza la asistencia de forma grupal en un día específico.
      */
-    AsistenciaModel updateAsistenciaGrupalPupiloPorDia(List<AsistenciaIndividualModel> asistenciaModel);
+    List<AsistenciaModel> updateAsistenciaGrupalPupiloPorDia(List<AsistenciaIndividualModel> asistenciaModel);
 
     /**
      * Encuentra asistencias filtrando por RBD, enseñanza, grado, letra, y rut.
      */
-    PaginationResultModel<AsistenciaModel> findAsistencia(String rbd, String ensenanza, String grado, String letra, Integer rut);
+    PaginationResultModel<AsistenciaModel> findAsistencia(String rbd, String ensenanza, String grado, String letra, Long rut);
 
     /**
      * Encuentra asistencias filtrando por RBD, enseñanza, grado, letra, mes, día y rut.
      */
     PaginationResultModel<AsistenciaModel> findAsistenciaPorMesAndDia(String rbd, String ensenanza, String grado, String letra,
-                                                                      String mes, String dia, Integer rut);
+                                                                      String mes, String dia, Long rut);
 
     /**
      * Encuentra todas las asistencias dentro de un período, y filtros de establecimiento/ubicación,

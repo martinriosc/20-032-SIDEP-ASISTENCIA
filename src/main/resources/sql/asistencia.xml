@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -6,50 +6,31 @@
 <mapper namespace="cl.mineduc.sidep.asistenciaapi.mappers.AsistenciaMapper">
 
     <resultMap id="asistenciaResultMap" type="cl.mineduc.sidep.asistenciaapi.model.AsistenciaModel">
-        <!-- PK -->
         <id property="id" column="pk_asis_id_asistencia" />
-
-        <!-- Fechas directas -->
         <result property="fechaRegistro" column="asis_fecha_creacion" />
         <result property="fechaActualizacion" column="asis_fecha_actualizacion" />
-
-        <!-- FK a calendario -->
         <result property="calendarioId" column="fk_asis_id_calendario" />
-
-        <!-- FK a matricula_grupo -->
         <result property="matriculaGrupoId" column="fk_asis_id_matricula_grupo" />
-
-        <!-- JSONS (si tu AsistenciaModel tiene esos campos) -->
-        <result property="jsonAsistencia" column="asis_json_asistencia" />
-        <result property="jsonAsistencia2" column="asis_json_asistencia_2" />
-
-        <!-- Ejemplo de campos de calendario -->
         <result property="calendarioFecha" column="cale_fecha" />
         <result property="calendarioTrabajado" column="cale_trabajado" />
-
     </resultMap>
-
 
     <sql id="selectAsistencia">
         SELECT
-            a.pk_asis_id_asistencia,
-            a.asis_fecha_creacion,
-            a.asis_fecha_actualizacion,
-            -- Claves foráneas
-            a.fk_asis_id_calendario,
-            a.fk_asis_id_matricula_grupo,
-            -- JSONs
-            a.asis_json_asistencia,
-            a.asis_json_asistencia_2,
-            -- Campos de calendario (si necesitas)
-            c.cale_fecha,
-            c.cale_trabajado
+        a.pk_asis_id_asistencia,
+        a.asis_fecha_creacion,
+        a.asis_fecha_actualizacion,
+        a.fk_asis_id_calendario,
+        a.fk_asis_id_matricula_grupo,
+        c.cale_fecha,
+        c.cale_trabajado
         FROM asistencia a
-                 LEFT JOIN calendario c ON a.fk_asis_id_calendario = c.pk_cale_id_calendario
-                 LEFT JOIN matricula_grupo mg ON a.fk_asis_id_matricula_grupo = mg.pk_matg_id_matricula_grupo
+        JOIN calendario c
+        ON a.fk_asis_id_calendario = c.pk_cale_id_calendario
+        <!-- Agrega más joins si necesitas aquí -->
     </sql>
 
-
+    <!-- INSERT -->
     <insert id="insert"
             parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity"
             useGeneratedKeys="true" keyProperty="id" keyColumn="pk_asis_id_asistencia">
@@ -57,65 +38,91 @@
         (
             fk_asis_id_calendario,
             fk_asis_id_matricula_grupo,
-            asis_json_asistencia,
-            asis_json_asistencia_2,
             asis_fecha_creacion
         )
         VALUES
             (
                 #{calendarioId},
                 #{matriculaGrupoId},
-                #{jsonAsistencia},
-                #{jsonAsistencia2},
                 CURRENT_TIMESTAMP
             )
     </insert>
 
+    <!-- UPDATE -->
     <update id="update"
             parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity">
         UPDATE asistencia
         SET
-            fk_asis_id_calendario    = #{calendarioId},
+            fk_asis_id_calendario     = #{calendarioId},
             fk_asis_id_matricula_grupo = #{matriculaGrupoId},
-            asis_json_asistencia     = #{jsonAsistencia},
-            asis_json_asistencia_2   = #{jsonAsistencia2},
-            asis_fecha_actualizacion = CURRENT_TIMESTAMP
+            asis_fecha_actualizacion  = CURRENT_TIMESTAMP
         WHERE pk_asis_id_asistencia = #{id}
     </update>
-
 
     <!-- DELETE -->
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM asistencia
         WHERE pk_asis_id_asistencia = #{id}
     </delete>
+
+    <!-- SELECT findAll -->
     <select id="findAll"
-            resultMap="asistenciaResultMap"
-            parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter">
-        <include refid="selectAsistencia" />
+            parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter"
+            resultMap="asistenciaResultMap">
+
+        SELECT
+        a.pk_asis_id_asistencia            AS id,
+        a.asis_fecha_creacion              AS fechaCreacion,
+        a.asis_fecha_actualizacion         AS fechaActualizacion,
+        g.grup_letra                       AS letra,
+        p.pers_rut                         AS rut,
+        ue.uned_rbd                        AS rbd,
+        c.cale_fecha                       AS fechaCalendario
+
+        FROM asistencia a
+        LEFT JOIN calendario c
+        ON a.fk_asis_id_calendario = c.pk_cale_id_calendario
+        LEFT JOIN grupo g
+        ON c.fk_cale_id_grupo = g.pk_grup_id_grupo
+        LEFT JOIN grado grad
+        ON g.fk_grup_id_grado = grad.pk_grad_id_grado
+        LEFT JOIN unidad_educativa ue
+        ON grad.fk_grad_id_unidad_educativa = ue.pk_uned_id_unidad_educativa
+        LEFT JOIN matricula_grupo mg
+        ON a.fk_asis_id_matricula_grupo = mg.pk_matg_id_matricula_grupo
+        LEFT JOIN matricula_unidad_educativa mued
+        ON mg.fk_matg_id_matricula_ue = mued.pk_mued_id_matricula_unidad_educativa
+        LEFT JOIN parvulo pv
+        ON mued.fk_mued_id_parvulo = pv.pk_parv_id_parvulo
+        LEFT JOIN persona p
+        ON pv.fk_parv_id_persona = p.pk_pers_id_persona
+        LEFT JOIN jornada j
+        ON g.fk_grup_id_jornada = j.pk_jorn_id_jornada
+
         <where>
             <if test="rbd != null">
-                AND a.asis_json_asistencia::json->>'rbd' = #{rbd}
+                AND ue.uned_rbd = CAST(#{rbd} AS BIGINT)
             </if>
             <if test="ensenanza != null">
-                AND a.asis_json_asistencia::json->>'ensenanza' = #{ensenanza}
+                AND j.jorn_nombre = #{ensenanza}
             </if>
             <if test="grado != null">
-                AND a.asis_json_asistencia::json->>'grado' = #{grado}
+                AND grad.pk_grad_id_grado = CAST(#{grado} AS BIGINT)
             </if>
             <if test="letra != null">
-                AND a.asis_json_asistencia::json->>'letra' = #{letra}
+                AND g.grup_letra = #{letra}
             </if>
             <if test="rut != null">
-                AND a.asis_json_asistencia::json->>'rut' = CAST(#{rut} AS text)
+                AND p.pers_rut = CAST(#{rut} AS int4)
             </if>
-            <if test="periodoDesde != null">
-                AND a.asis_fecha_creacion &gt;= CAST(#{periodoDesde} AS DATE)
+            <if test="mes != null">
+                AND EXTRACT(MONTH FROM c.cale_fecha) = CAST(#{mes} AS int)
             </if>
-            <if test="periodoHasta != null">
-                AND a.asis_fecha_creacion &lt;= CAST(#{periodoHasta} AS DATE)
+            <if test="dia != null">
+                AND EXTRACT(DAY FROM c.cale_fecha) = CAST(#{dia} AS int)
             </if>
         </where>
+
         <if test="orderBy != null">
             ORDER BY ${orderBy} ${order}
         </if>
@@ -124,40 +131,64 @@
         </if>
     </select>
 
-
-
-    <select id="countTotal" parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter" resultType="java.lang.Long">
+    <!-- SELECT countTotal con la misma lógica de joins y where -->
+    <select id="countTotal"
+            parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter"
+            resultType="long">
         SELECT COUNT(a.pk_asis_id_asistencia)
         FROM asistencia a
-        WHERE 1=1
-        <if test="rbd != null">
-            AND a.asis_json_asistencia::json->>'rbd' = #{rbd}
-        </if>
-        <if test="ensenanza != null">
-            AND a.asis_json_asistencia::json->>'ensenanza' = #{ensenanza}
-        </if>
-        <if test="grado != null">
-            AND a.asis_json_asistencia::json->>'grado' = #{grado}
-        </if>
-        <if test="letra != null">
-            AND a.asis_json_asistencia::json->>'letra' = #{letra}
-        </if>
-        <if test="rut != null">
-            AND a.asis_json_asistencia::json->>'rut' = CAST(#{rut} AS text)
-        </if>
-        <if test="periodoDesde != null">
-            AND a.asis_fecha_creacion &gt;= CAST(#{periodoDesde} AS DATE)
-        </if>
-        <if test="periodoHasta != null">
-            AND a.asis_fecha_creacion &lt;= CAST(#{periodoHasta} AS DATE)
-        </if>
-        <!-- Si necesitas otros filtros, agrégalos de forma similar -->
-    </select>
+        JOIN calendario c
+        ON a.fk_asis_id_calendario = c.pk_cale_id_calendario
+        JOIN grupo g
+        ON c.fk_cale_id_grupo = g.pk_grup_id_grupo
+        JOIN grado grad
+        ON g.fk_grup_id_grado = grad.pk_grad_id_grado
+        JOIN unidad_educativa ue
+        ON grad.fk_grad_id_unidad_educativa = ue.pk_uned_id_unidad_educativa
+        JOIN matricula_grupo mg
+        ON a.fk_asis_id_matricula_grupo = mg.pk_matg_id_matricula_grupo
+        JOIN matricula_unidad_educativa mued
+        ON mg.fk_matg_id_matricula_ue = mued.pk_mued_id_matricula_unidad_educativa
+        JOIN parvulo pv
+        ON mued.fk_mued_id_parvulo = pv.pk_parv_id_parvulo
+        JOIN persona p
+        ON pv.fk_parv_id_persona = p.pk_pers_id_persona
+        JOIN jornada j
+        ON g.fk_grup_id_jornada = j.pk_jorn_id_jornada
 
+        <where>
+            <if test="rbd != null">
+                AND ue.uned_rbd = CAST(#{rbd} AS BIGINT)
+            </if>
+            <if test="ensenanza != null">
+                AND j.jorn_nombre = #{ensenanza}
+            </if>
+            <if test="grado != null">
+                AND grad.pk_grad_id_grado = CAST(#{grado} AS BIGINT)
+            </if>
+            <if test="letra != null">
+                AND g.grup_letra = #{letra}
+            </if>
+            <if test="rut != null">
+                AND p.pers_rut = CAST(#{rut} AS int4)
+            </if>
+            <if test="mes != null">
+                AND EXTRACT(MONTH FROM c.cale_fecha) = CAST(#{mes} AS int)
+            </if>
+            <if test="dia != null">
+                AND EXTRACT(DAY FROM c.cale_fecha) = CAST(#{dia} AS int)
+            </if>
+        </where>
+    </select>
 
     <!-- SELECT findById -->
-    <select id="findById" resultMap="asistenciaResultMap" parameterType="java.lang.Long">
-        <include refid="selectAsistencia"/>
+    <select id="findById"
+            resultMap="asistenciaResultMap"
+            parameterType="java.lang.Long">
+        <include refid="selectAsistencia" />
         WHERE a.pk_asis_id_asistencia = #{id}
     </select>
+
+
+
 </mapper>

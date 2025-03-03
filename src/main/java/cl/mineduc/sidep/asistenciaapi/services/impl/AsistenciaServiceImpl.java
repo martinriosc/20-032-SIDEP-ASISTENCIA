@@ -1,6 +1,7 @@
 package cl.mineduc.sidep.asistenciaapi.services.impl;
 
 import cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity;
+import cl.mineduc.sidep.asistenciaapi.entities.CalendarioEntity;
 import cl.mineduc.sidep.asistenciaapi.exceptions.SidepException;
 import cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaIndividualModel;
@@ -18,6 +19,9 @@ import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -29,36 +33,42 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
     private final AsistenciaRepository asistenciaRepository;
     private final CalendarioRepository calendarioRepository;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     @Override
     @Transactional
     public AsistenciaModel updateAsistenciaPupiloPorDia(AsistenciaIndividualModel asistenciaModel) {
         try {
-            log.info("updateAsistenciaPupiloPorDia: {}", asistenciaModel);
+            String diaStr = asistenciaModel.getDia();
+            String mesStr = asistenciaModel.getMes();
 
-            // 1) Validar si el calendario (vía FK en la Asistencia) está 'trabajado'
-            //    - asumiendo que AsistenciaIndividualModel trae un campo "calendarioId"
-            //      o algo similar, y que tenemos un CalendarioRepository con un findById
-            if (asistenciaModel.getCalendarioId() != null) {
-                CalendarioModel cal = calendarioRepository.findById(asistenciaModel.getCalendarioId());
-                if (cal != null && Boolean.TRUE.equals(cal.getTrabajado())) {
-                    throw new SidepException("No se puede actualizar asistencia: el calendario está trabajado", null);
-                }
+            if (diaStr == null || mesStr == null) {
+                throw new SidepException("Los campos día y mes son obligatorios.", null);
             }
 
-            // 2) Convertir a entity
-            AsistenciaEntity entity = toEntity(asistenciaModel);
+            int dia = Integer.parseInt(diaStr);
+            int mes = Integer.parseInt(mesStr);
 
-            // 3) Crear o actualizar
+            CalendarioModel calendario = calendarioRepository.findByDiaMes(dia, mes);
+
+            if (calendario == null) {
+                throw new SidepException("No existe un calendario para la fecha: día " + dia + ", mes " + mes, null);
+            }
+
+            if (Boolean.TRUE.equals(calendario.getTrabajado())) {
+                throw new SidepException("No se puede actualizar asistencia: el calendario ya está trabajado.", null);
+            }
+
+            AsistenciaEntity entity = toEntityIndividual(asistenciaModel);
+
+            AsistenciaEntity savedAsistencia = null;
             if (entity.getId() == null) {
-                this.asistenciaRepository.save(entity);
+               asistenciaRepository.save(entity);
             } else {
-                this.asistenciaRepository.update(entity);
+               asistenciaRepository.update(entity);
             }
 
-            // 4) Retornar la asistencia actualizada
-            AsistenciaModel updated = this.asistenciaRepository.findById(entity.getId());
+
+
+            AsistenciaModel updated = asistenciaRepository.findById(entity.getId());
             return updated;
 
         } catch (MyBatisSystemException ex) {
@@ -69,22 +79,24 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
 
     @Override
     @Transactional
-    public AsistenciaModel updateAsistenciaGrupalPupiloPorDia(List<AsistenciaIndividualModel> asistencias) {
+    public List<AsistenciaModel> updateAsistenciaGrupalPupiloPorDia(List<AsistenciaIndividualModel> asistencias) {
         try {
 
             log.info("updateAsistenciaGrupalPupiloPorDia: {} registros", asistencias.size());
 
-            AsistenciaModel lastUpdated = null;
+
+            List<AsistenciaModel> updatedList = new ArrayList<>();
+
             for (AsistenciaIndividualModel a : asistencias) {
-                AsistenciaEntity entity = toEntity(a);
+                AsistenciaEntity entity = toEntityIndividual(a);
                 if (entity.getId() == null) {
                     this.asistenciaRepository.save(entity);
                 } else {
                     this.asistenciaRepository.update(entity);
                 }
-                lastUpdated = this.asistenciaRepository.findById(entity.getId());
+                updatedList.add(this.asistenciaRepository.findById(entity.getId()));
             }
-            return lastUpdated;
+            return updatedList;
         } catch (MyBatisSystemException ex) {
             throw new SidepException("Error al consultar updateAsistenciaGrupalPupiloPorDia en AsistenciaRepository", ex);
         }
@@ -92,7 +104,7 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
 
     @Override
     @Transactional(readOnly = true)
-    public PaginationResultModel<AsistenciaModel> findAsistencia(String rbd, String ensenanza, String grado, String letra, Integer rut) {
+    public PaginationResultModel<AsistenciaModel> findAsistencia(String rbd, String ensenanza, String grado, String letra, Long rut) {
         try {
             log.info("findAsistencia: rbd={}, ensenanza={}, grado={}, letra={}, rut={}", rbd, ensenanza, grado, letra, rut);
 
@@ -112,7 +124,7 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             }
             return PaginationResultModel.<AsistenciaModel>builder()
                     .resultados(result)
-                    .totalElementos(total)
+                    .totalElementos((long) result.size())
                     .totalPaginas(total / result.size() + ((total % result.size() == 0) ? 0 : 1))
                     .build();
 
@@ -123,12 +135,11 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
 
     @Override
     @Transactional(readOnly = true)
-    public PaginationResultModel<AsistenciaModel> findAsistenciaPorMesAndDia(String rbd, String ensenanza, String grado, String letra, String mes, String dia, Integer rut) {
+    public PaginationResultModel<AsistenciaModel> findAsistenciaPorMesAndDia(String rbd, String ensenanza, String grado, String letra, String mes, String dia, Long rut) {
         try {
             log.info("findAsistenciaPorMesAndDia: rbd={}, ensenanza={}, grado={}, letra={}, mes={}, dia={}, rut={}",
                     rbd, ensenanza, grado, letra, mes, dia, rut);
 
-            System.out.println("RUT" + rut);
             AsistenciaFilter filter = AsistenciaFilter.builder()
                     .rbd(rbd)
                     .ensenanza(ensenanza)
@@ -147,7 +158,7 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             }
             return PaginationResultModel.<AsistenciaModel>builder()
                     .resultados(result)
-                    .totalElementos(total)
+                    .totalElementos((long) result.size())
                     .totalPaginas(total / result.size() + ((total % result.size() == 0) ? 0 : 1))
                     .build();
         } catch (MyBatisSystemException ex) {
@@ -188,7 +199,7 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
 
             return PaginationResultModel.<AsistenciaModel>builder()
                     .resultados(result)
-                    .totalElementos(total)
+                    .totalElementos((long) result.size())
                     .totalPaginas(total / result.size() + ((total % result.size() == 0) ? 0 : 1))
                     .build();
         } catch (MyBatisSystemException ex) {
@@ -196,23 +207,68 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
         }
     }
 
-    private AsistenciaEntity toEntity(AsistenciaIndividualModel m) {
+    private AsistenciaEntity toEntityIndividual(AsistenciaIndividualModel m) {
         AsistenciaEntity e = new AsistenciaEntity();
-        e.setId(m.getId());
-        // Copiar las claves foráneas
-        e.setCalendarioId(m.getCalendarioId());
-        // Si tu modelo tuviera la propiedad para matriculaGrupoId, haz lo mismo:
-        // e.setMatriculaGrupoId(m.getMatriculaGrupoId());
 
-        try {
-            String json = objectMapper.writeValueAsString(m);
-            e.setJsonAsistencia(json);
-        } catch (JsonProcessingException ex) {
-            log.error("Error convirtiendo a JSON la asistencia: {}", m, ex);
-            e.setJsonAsistencia("{}");
+        if (m.getId() == null || m.getId() == 0) {
+            e.setId(null);
+        } else {
+            e.setId(m.getId());
         }
-        e.setJsonAsistencia2(null);
+
+        e.setCalendarioId(m.getCalendarioId());
+        e.setFechaActualizacion(LocalDateTime.now());
+
         return e;
     }
 
+    private AsistenciaEntity toEntity(AsistenciaModel m) {
+        AsistenciaEntity e = new AsistenciaEntity();
+
+        if (m.getId() == null || m.getId() == 0) {
+            e.setId(null);
+        } else {
+            e.setId(m.getId());
+        }
+
+        e.setCalendarioId(m.getCalendarioId());
+        e.setFechaActualizacion(LocalDateTime.now());
+
+        return e;
+    }
+
+    private AsistenciaModel toModel(AsistenciaEntity m) {
+        AsistenciaModel e = new AsistenciaModel();
+
+        if (m.getId() == null || m.getId() == 0) {
+            e.setId(null);
+        } else {
+            e.setId(m.getId());
+        }
+
+        e.setCalendarioId(m.getCalendarioId());
+        e.setFechaActualizacion(LocalDateTime.now());
+
+        return e;
+    }
+
+    private CalendarioEntity toCalendarioEntity(CalendarioModel m) {
+        CalendarioEntity e = new CalendarioEntity();
+        e.setId(m.getId());
+        e.setTrabajado(m.getTrabajado());
+        e.setFechaActualizacion(m.getFechaActualizacion());
+        e.setGrupoId(m.getGrupo() != null ? m.getGrupo().getId() : null);
+        e.setFechaCreacion(m.getFechaCreacion());
+        e.setFechaActualizacion(e.getFechaActualizacion());
+        return e;
+    }
+
+    private CalendarioModel toCalendarioModel(CalendarioEntity e) {
+        CalendarioModel m = new CalendarioModel();
+        m.setId(e.getId());
+        m.setTrabajado(e.getTrabajado());
+        m.setFechaActualizacion(e.getFechaActualizacion());
+        m.setFechaCreacion(e.getFechaCreacion());
+        return m;
+    }
 }

@@ -18,7 +18,7 @@ public class AsistenciaFilter {
     private String letra;
     private String mes;
     private String dia;
-    private Integer rut;
+    private Long rut;
     private String periodoDesde;
     private String periodoHasta;
     private String matriculaUe;

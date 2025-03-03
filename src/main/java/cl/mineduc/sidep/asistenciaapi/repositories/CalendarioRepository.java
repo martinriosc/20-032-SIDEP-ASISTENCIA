@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
@@ -83,4 +85,15 @@ public class CalendarioRepository {
             throw new SidepException("Error al eliminar el calendario", e);
         }
     }
+
+    /**
+     * Busca un calendario por Dia y Mes.
+     */
+    public CalendarioModel findByDiaMes(int dia, int mes) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("dia", dia);
+        params.put("mes", mes);
+        return calendarioMapper.findByDiaMes(params);
+    }
+
 }

@@ -27,48 +27,48 @@ public class AsistenciaController {
     }
 
     @PutMapping("/asistencias")
-    public ResponseEntity<AsistenciaModel> updateAsistenciaGrupalPupiloPorDia(@Valid @RequestBody List<AsistenciaIndividualModel> asistenciaModel, HttpServletRequest request) {
+    public ResponseEntity<List<AsistenciaModel>> updateAsistenciaGrupalPupiloPorDia(@Valid @RequestBody List<AsistenciaIndividualModel> asistenciaModel, HttpServletRequest request) {
         return ResponseEntity.ok(this.asistenciaService.updateAsistenciaGrupalPupiloPorDia(asistenciaModel));
     }
 
-    @GetMapping("/asistencia/{rbd}/ensenanza/{ensenanza}/grado/{grado}/letra/{letra}/mes/{mes}/dia/{dia}/rut/{rut}")
+    @GetMapping("/asistencia/get-dia-mes")
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAsistenciaPorMesAndDia(
-            @PathVariable(name = "rbd", required = false) String rbd,
-            @PathVariable(name = "ensenanza", required = false) String ensenanza,
-            @PathVariable(name = "grado", required = false) String grado,
-            @PathVariable(name = "letra", required = false) String letra,
-            @PathVariable(name = "mes", required = false) String mes,
-            @PathVariable(name = "dia", required = false) String dia,
-            @PathVariable(name = "rut") Integer rut,
+            @RequestParam(name = "rbd", required = false) String rbd,
+            @RequestParam(name = "ensenanza", required = false) String ensenanza,
+            @RequestParam(name = "grado", required = false) String grado,
+            @RequestParam(name = "letra", required = false) String letra,
+            @RequestParam(name = "mes", required = false) String mes,
+            @RequestParam(name = "dia", required = false) String dia,
+            @RequestParam(name = "rut", required = false) Long rut,
             HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(this.asistenciaService.findAsistenciaPorMesAndDia(
                 rbd, ensenanza, grado, letra, mes, dia, rut));
     }
 
-    @GetMapping("/asistencia/{rbd}/ensenanza/{ensenanza}/grado/{grado}/letra/{letra}/rut/{rut}")
+    @GetMapping("/asistencia/get")
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAsistencia(
-            @PathVariable(name = "rbd", required = false) String rbd,
-            @PathVariable(name = "ensenanza", required = false) String ensenanza,
-            @PathVariable(name = "grado", required = false) String grado,
-            @PathVariable(name = "letra", required = false) String letra,
-            @PathVariable(name = "rut") Integer rut,
+            @RequestParam(name = "rbd", required = false) String rbd,
+            @RequestParam(name = "ensenanza", required = false) String ensenanza,
+            @RequestParam(name = "grado", required = false) String grado,
+            @RequestParam(name = "letra", required = false) String letra,
+            @RequestParam(name = "rut", required = false) Long rut,
             HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(this.asistenciaService.findAsistencia(
                 rbd, ensenanza, grado, letra, rut));
     }
 
-    @GetMapping("/asistencia")
+    @GetMapping("/asistencia/list")
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAllAsistencia(
-            @PathVariable(name = "periodoDesde", required = false) String periodoDesde,
-            @PathVariable(name = "periodoHasta", required = false) String periodoHasta,
-            @PathVariable(name = "establecimiento", required = false) String establecimiento,
-            @PathVariable(name = "region", required = false) String region,
-            @PathVariable(name = "provincia", required = false) String provincia,
-            @PathVariable(name = "comuna", required = false) String comuna,
-            @PathVariable(name = "pageSize", required = false) Integer pageSize,
-            @PathVariable(name = "pageNumber", required = false) Integer pageNumber,
+            @RequestParam(name = "periodoDesde", required = false) String periodoDesde,
+            @RequestParam(name = "periodoHasta", required = false) String periodoHasta,
+            @RequestParam(name = "establecimiento", required = false) String establecimiento,
+            @RequestParam(name = "region", required = false) String region,
+            @RequestParam(name = "provincia", required = false) String provincia,
+            @RequestParam(name = "comuna", required = false) String comuna,
+            @RequestParam(name = "pageSize", required = false) Integer pageSize,
+            @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
             HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(this.asistenciaService.findAllAsistencia(
