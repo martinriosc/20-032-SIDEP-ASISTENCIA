@@ -11,17 +11,13 @@ import cl.mineduc.sidep.asistenciaapi.model.PaginationResultModel;
 import cl.mineduc.sidep.asistenciaapi.repositories.AsistenciaRepository;
 import cl.mineduc.sidep.asistenciaapi.repositories.CalendarioRepository;
 import cl.mineduc.sidep.asistenciaapi.services.IAsistenciaService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -168,7 +164,16 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
 
     @Override
     @Transactional(readOnly = true)
-    public PaginationResultModel<AsistenciaModel> findAllAsistencia(String periodoDesde, String periodoHasta, String establecimiento, String region, String provincia, String comuna, Integer pageSize, Integer pageNumber) {
+    public PaginationResultModel<AsistenciaModel> findAllAsistencia(
+            String periodoDesde,
+            String periodoHasta,
+            String establecimiento,
+            String region,
+            String provincia,
+            String comuna,
+            Integer pageSize,
+            Integer pageNumber
+    ) {
         try {
             log.info("findAllAsistencia: periodoDesde={}, periodoHasta={}, establecimiento={}, region={}, provincia={}, comuna={}, pageSize={}, pageNumber={}",
                     periodoDesde, periodoHasta, establecimiento, region, provincia, comuna, pageSize, pageNumber);
@@ -182,12 +187,18 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
                     .comuna(comuna)
                     .build();
 
+            // Manejo de paginación => asume que pageNumber=1 es la primera página
             if (pageNumber != null) {
+                // Si no envían pageSize, usar un DEFAULT_PAGE_SIZE
                 int size = (pageSize != null) ? pageSize : DEFAULT_PAGE_SIZE;
+
+                // Forzamos un valor mínimo 1 para no tener offset negativo
+                int safePageNumber = (pageNumber < 1) ? 1 : pageNumber;
+
                 filter.setOrder("ASC");
                 filter.setOrderBy("asis_fecha_creacion");
                 filter.setLimit(size);
-                filter.setOffset(pageNumber * size);
+                filter.setOffset((safePageNumber - 1) * size);
             }
 
             List<AsistenciaModel> result = asistenciaRepository.findAll(filter);
@@ -197,15 +208,27 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
                 return PaginationResultModel.nullResult();
             }
 
+            // Cálculo de total de páginas: total / pageSize
+            // (Si no usas la página, no pasa nada)
+            long totalElementos = total;
+            int sizeUsed = (filter.getLimit() != null) ? filter.getLimit() : result.size();
+            long totalPaginas = totalElementos / sizeUsed;
+            if (totalElementos % sizeUsed != 0) {
+                totalPaginas++;
+            }
+
             return PaginationResultModel.<AsistenciaModel>builder()
                     .resultados(result)
-                    .totalElementos((long) result.size())
-                    .totalPaginas(total / result.size() + ((total % result.size() == 0) ? 0 : 1))
+                    .totalElementos(totalElementos)
+                    .totalPaginas(totalPaginas)
                     .build();
+
         } catch (MyBatisSystemException ex) {
             throw new SidepException("Error al consultar findAllAsistencia en AsistenciaRepository", ex);
         }
     }
+
+
 
     private AsistenciaEntity toEntityIndividual(AsistenciaIndividualModel m) {
         AsistenciaEntity e = new AsistenciaEntity();
