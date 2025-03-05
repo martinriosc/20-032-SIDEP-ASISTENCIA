@@ -14,9 +14,6 @@ public interface AsistenciaTableService {
     default AsistenciaModel toModel(AsistenciaEntity entity, AsistenciaIndividualModel asistencia) {
         AsistenciaModel model = new AsistenciaModel();
 
-        System.out.println("PRESENTE: "+entity.getPresente());
-        System.out.println("PRESENTE: "+asistencia.getPresente());
-
         model.setId(entity.getId());
         model.setRbd(asistencia.getRbd().toString());
         model.setGrado(asistencia.getGrado().toString());
