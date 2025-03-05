@@ -26,4 +26,17 @@ public interface AsistenciaTableRepository {
 
     Long findMatriculaGrupo(Long grupo, Long matriculaUe);
 
+    Long findNivelGradoIdByNombre(Long grado);
+
+    Long findGradoByUnidadEducativaAndNivelGrado(Long unidadEducativa, Long nivelGrado);
+
+    Long findGrupoByGradoLetra(Long grado, String letra);
+
+    Long findCalendarioByGrupoFecha(Long grupo, String ano, String mes, String dia);
+
+    Long findPersonaByRut(Integer rut);
+
+    Long findParvuloByPersona(Long persona);
+
+
 }

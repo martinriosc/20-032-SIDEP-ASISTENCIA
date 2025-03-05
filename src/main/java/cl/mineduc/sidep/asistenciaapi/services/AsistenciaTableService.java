@@ -10,35 +10,19 @@ public interface AsistenciaTableService {
 
     AsistenciaModel update(Long id, AsistenciaIndividualModel as);
 
-    default AsistenciaEntity toEntity(AsistenciaIndividualModel as, Long matriculaGrupo) {
-        AsistenciaEntity entity = new AsistenciaEntity();
-
-        entity.setCalendarioId(as.getCalendarioId());
-        entity.setMatriculaGrupoId(matriculaGrupo);
-
-        //TODO: SETEAR JSON ASISTENCIA
-
-        return entity;
-    }
 
     default AsistenciaModel toModel(AsistenciaEntity entity, AsistenciaIndividualModel asistencia) {
         AsistenciaModel model = new AsistenciaModel();
 
+        System.out.println("PRESENTE: "+entity.getPresente());
+        System.out.println("PRESENTE: "+asistencia.getPresente());
+
         model.setId(entity.getId());
         model.setRbd(asistencia.getRbd().toString());
-        model.setNivelGrado(asistencia.getGrado().toString());
+        model.setGrado(asistencia.getGrado().toString());
         model.setLetra(asistencia.getLetra());
-        model.setRut(asistencia.getRut());
-
-        //TODO: SETEAR ASISTIO
-        //result.setAsistio(asistencia.getPresente());
-
-        model.setCalendarioId(entity.getCalendarioId());
-        model.setMatriculaGrupoId(entity.getMatriculaGrupoId());
-        //model.setJsonAsistencia(entity.getJsonAsistencia());
-        //model.setJsonAsistencia2(entity.getJsonAsistencia2());
-        model.setFechaRegistro(entity.getFechaCreacion());
-        model.setFechaActualizacion(entity.getFechaActualizacion());
+        model.setRut(Long.valueOf(asistencia.getRut()));
+        model.setPresente(asistencia.getPresente());
 
         return model;
     }

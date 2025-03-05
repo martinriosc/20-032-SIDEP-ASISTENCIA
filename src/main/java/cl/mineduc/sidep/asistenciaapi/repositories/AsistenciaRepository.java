@@ -6,6 +6,7 @@ import cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter;
 import cl.mineduc.sidep.asistenciaapi.mappers.AsistenciaMapper;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaModel;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.annotations.Param;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.stereotype.Repository;
 
@@ -28,6 +29,7 @@ public class AsistenciaRepository {
         }
     }
 
+
     /**
      * Cuenta el total de asistencias que cumplen el filtro.
      */
@@ -43,9 +45,9 @@ public class AsistenciaRepository {
      * Actualiza una asistencia existente en la BDD y retorna la asistencia actualizada
      * (cargada desde la BD).
      */
-    public AsistenciaModel update(AsistenciaEntity entity) {
+    public AsistenciaModel update(Long id, AsistenciaEntity entity) {
         try {
-            asistenciaMapper.update(entity);
+            asistenciaMapper.update(id, entity);
 
             // Retornamos la asistencia consultándola nuevamente desde la BD
             // para obtener los datos frescos.
@@ -62,8 +64,6 @@ public class AsistenciaRepository {
      */
     public AsistenciaModel save(AsistenciaEntity entity) {
         try {
-            // Llamamos al mapper, que con `useGeneratedKeys="true"`
-            // nos devuelve la PK generada en 'entity.id'
             Long newId = asistenciaMapper.insert(entity);
 
             // Retornamos la asistencia recién insertada, consultándola por su nuevo ID
@@ -94,6 +94,16 @@ public class AsistenciaRepository {
             asistenciaMapper.delete(id);
         } catch (MyBatisSystemException e) {
             throw new SidepException("Error al eliminar la asistencia", e);
+        }
+    }
+
+
+    public AsistenciaModel findByCalendarioAndMatriculaGrupo(@Param("calendarioId") Long calendarioId,
+                                                      @Param("matriculaGrupoId") Long matriculaGrupoId) {
+        try {
+            return asistenciaMapper.findByCalendarioAndMatriculaGrupo(calendarioId, matriculaGrupoId);
+        } catch (MyBatisSystemException e) {
+            throw new SidepException("Error al findByCalendarioAndMatriculaGrupo", e);
         }
     }
 }

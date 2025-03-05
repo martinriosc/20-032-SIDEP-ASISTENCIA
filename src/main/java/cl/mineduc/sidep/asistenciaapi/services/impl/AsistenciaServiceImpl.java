@@ -1,7 +1,6 @@
 package cl.mineduc.sidep.asistenciaapi.services.impl;
 
 import cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity;
-import cl.mineduc.sidep.asistenciaapi.entities.CalendarioEntity;
 import cl.mineduc.sidep.asistenciaapi.exceptions.SidepException;
 import cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaIndividualModel;
@@ -9,99 +8,132 @@ import cl.mineduc.sidep.asistenciaapi.model.AsistenciaModel;
 import cl.mineduc.sidep.asistenciaapi.model.CalendarioModel;
 import cl.mineduc.sidep.asistenciaapi.model.PaginationResultModel;
 import cl.mineduc.sidep.asistenciaapi.repositories.AsistenciaRepository;
+import cl.mineduc.sidep.asistenciaapi.repositories.AsistenciaTableRepository;
 import cl.mineduc.sidep.asistenciaapi.repositories.CalendarioRepository;
+import cl.mineduc.sidep.asistenciaapi.services.AsistenciaTableService;
 import cl.mineduc.sidep.asistenciaapi.services.IAsistenciaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Log4j2
 @RequiredArgsConstructor
 public class AsistenciaServiceImpl implements IAsistenciaService {
+
     private static final int DEFAULT_PAGE_SIZE = 20;
 
     private final AsistenciaRepository asistenciaRepository;
+    private final AsistenciaTableService asistenciaTableService;
+    private final AsistenciaTableRepository asistenciaTableRepository;
     private final CalendarioRepository calendarioRepository;
 
+    /**
+     * Actualiza (o crea) la asistencia para un pupilo en un día específico.
+     */
     @Override
     @Transactional
     public AsistenciaModel updateAsistenciaPupiloPorDia(AsistenciaIndividualModel asistenciaModel) {
         try {
             String diaStr = asistenciaModel.getDia();
             String mesStr = asistenciaModel.getMes();
-
             if (diaStr == null || mesStr == null) {
                 throw new SidepException("Los campos día y mes son obligatorios.", null);
             }
 
             int dia = Integer.parseInt(diaStr);
             int mes = Integer.parseInt(mesStr);
+            int anio = LocalDate.now().getYear();
 
-            CalendarioModel calendario = calendarioRepository.findByDiaMes(dia, mes);
-
+            CalendarioModel calendario = calendarioRepository.findByDiaMesAnio(dia, mes, anio);
             if (calendario == null) {
-                throw new SidepException("No existe un calendario para la fecha: día " + dia + ", mes " + mes, null);
+                throw new SidepException(String.format(
+                        "No existe un calendario para la fecha: día %d, mes %d, año %d",
+                        dia, mes, anio
+                ), null);
+            }
+            if (Boolean.FALSE.equals(calendario.getTrabajado())) {
+                throw new SidepException("No se puede actualizar asistencia: la fecha no es trabajada.", null);
             }
 
-            if (Boolean.TRUE.equals(calendario.getTrabajado())) {
-                throw new SidepException("No se puede actualizar asistencia: el calendario ya está trabajado.", null);
-            }
+            Long unidadEducativaId = asistenciaTableRepository.findUnidadEducativaByRbd(asistenciaModel.getRbd());
+            Long nivelGradoId = asistenciaTableRepository.findNivelGradoIdByNombre(asistenciaModel.getGrado());
+            Long gradoId = asistenciaTableRepository.findGradoByUnidadEducativaAndNivelGrado(unidadEducativaId, nivelGradoId);
+            Long grupoId = asistenciaTableRepository.findGrupoByGradoLetra(gradoId, asistenciaModel.getLetra());
+            Long personaId = asistenciaTableRepository.findPersonaByRut(asistenciaModel.getRut());
+            Long parvuloId = asistenciaTableRepository.findParvuloByPersona(personaId);
+            Long matriculaUeId = asistenciaTableRepository.findMatriculaUnidadEducativa(parvuloId, unidadEducativaId);
+            Long matriculaGrupoId = asistenciaTableRepository.findMatriculaGrupo(grupoId, matriculaUeId);
+
+            Map<String, Object> params = new HashMap<>();
+
+            Long calendarioId = calendario.getId();
+            params.put("calendarioId", calendario.getId());
+            params.put("matriculaGrupoId", matriculaGrupoId);
+
+            AsistenciaModel asistenciaExistente = asistenciaRepository.findByCalendarioAndMatriculaGrupo(calendarioId, matriculaGrupoId);
+
+
+            asistenciaModel.setCalendarioId(calendario.getId());
 
             AsistenciaEntity entity = toEntityIndividual(asistenciaModel);
-            
-            if (entity.getId() == null) {
-               asistenciaRepository.save(entity);
+            entity.setPresente(asistenciaModel.getPresente());
+
+            if (asistenciaExistente != null) {
+                Long asistenciaId = asistenciaExistente.getId();
+                AsistenciaModel updated = asistenciaTableService.update(asistenciaId, asistenciaModel);
+                return updated;
             } else {
-               asistenciaRepository.update(entity);
+                AsistenciaModel created = asistenciaTableService.save(asistenciaModel);
+                return created;
             }
-
-
-
-            AsistenciaModel updated = asistenciaRepository.findById(entity.getId());
-            return updated;
 
         } catch (MyBatisSystemException ex) {
             throw new SidepException("Error al consultar updateAsistenciaPupiloPorDia en AsistenciaRepository", ex);
         }
     }
 
-
+    /**
+     * Actualiza (o crea) asistencia para un grupo de alumnos.
+     */
     @Override
     @Transactional
     public List<AsistenciaModel> updateAsistenciaGrupalPupiloPorDia(List<AsistenciaIndividualModel> asistencias) {
         try {
-
             log.info("updateAsistenciaGrupalPupiloPorDia: {} registros", asistencias.size());
-
-
             List<AsistenciaModel> updatedList = new ArrayList<>();
 
-            for (AsistenciaIndividualModel a : asistencias) {
-                AsistenciaEntity entity = toEntityIndividual(a);
-                if (entity.getId() == null) {
-                    this.asistenciaRepository.save(entity);
-                } else {
-                    this.asistenciaRepository.update(entity);
-                }
-                updatedList.add(this.asistenciaRepository.findById(entity.getId()));
+            for (AsistenciaIndividualModel alumno : asistencias) {
+                AsistenciaModel updated = this.updateAsistenciaPupiloPorDia(alumno);
+                updatedList.add(updated);
             }
             return updatedList;
+
         } catch (MyBatisSystemException ex) {
             throw new SidepException("Error al consultar updateAsistenciaGrupalPupiloPorDia en AsistenciaRepository", ex);
         }
     }
 
+    /**
+     * Búsqueda de asistencia por algunos filtros (rbd, ensenanza, grado, letra, rut).
+     */
     @Override
     @Transactional(readOnly = true)
-    public PaginationResultModel<AsistenciaModel> findAsistencia(String rbd, String ensenanza, String grado, String letra, Long rut) {
+    public PaginationResultModel<AsistenciaModel> findAsistencia(
+            String rbd, String ensenanza, String grado, String letra, Long rut
+    ) {
         try {
-            log.info("findAsistencia: rbd={}, ensenanza={}, grado={}, letra={}, rut={}", rbd, ensenanza, grado, letra, rut);
+            log.info("findAsistencia: rbd={}, ensenanza={}, grado={}, letra={}, rut={}",
+                    rbd, ensenanza, grado, letra, rut);
 
             AsistenciaFilter filter = AsistenciaFilter.builder()
                     .rbd(rbd)
@@ -114,13 +146,21 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             List<AsistenciaModel> result = asistenciaRepository.findAll(filter);
             Long total = asistenciaRepository.countTotal(filter);
 
-            if (result == null || result.isEmpty()) {
+            if (result.isEmpty()) {
                 return PaginationResultModel.nullResult();
             }
+
+            long totalElementos = total;
+            long size = result.size();
+            long totalPaginas = totalElementos / size;
+            if (totalElementos % size != 0) {
+                totalPaginas++;
+            }
+
             return PaginationResultModel.<AsistenciaModel>builder()
                     .resultados(result)
-                    .totalElementos((long) result.size())
-                    .totalPaginas(total / result.size() + ((total % result.size() == 0) ? 0 : 1))
+                    .totalElementos(totalElementos)
+                    .totalPaginas(totalPaginas)
                     .build();
 
         } catch (MyBatisSystemException ex) {
@@ -128,9 +168,20 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
         }
     }
 
+    /**
+     * Búsqueda de asistencia filtrando por mes y día
+     */
     @Override
     @Transactional(readOnly = true)
-    public PaginationResultModel<AsistenciaModel> findAsistenciaPorMesAndDia(String rbd, String ensenanza, String grado, String letra, String mes, String dia, Long rut) {
+    public PaginationResultModel<AsistenciaModel> findAsistenciaPorMesAndDia(
+            String rbd,
+            String ensenanza,
+            String grado,
+            String letra,
+            String mes,
+            String dia,
+            Long rut
+    ) {
         try {
             log.info("findAsistenciaPorMesAndDia: rbd={}, ensenanza={}, grado={}, letra={}, mes={}, dia={}, rut={}",
                     rbd, ensenanza, grado, letra, mes, dia, rut);
@@ -148,19 +199,32 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             List<AsistenciaModel> result = asistenciaRepository.findAll(filter);
             Long total = asistenciaRepository.countTotal(filter);
 
-            if (result == null || result.isEmpty()) {
+            if (result.isEmpty()) {
                 return PaginationResultModel.nullResult();
             }
+
+            long totalElementos = total;
+            long size = result.size();
+            long totalPaginas = totalElementos / size;
+            if (totalElementos % size != 0) {
+                totalPaginas++;
+            }
+
             return PaginationResultModel.<AsistenciaModel>builder()
                     .resultados(result)
-                    .totalElementos((long) result.size())
-                    .totalPaginas(total / result.size() + ((total % result.size() == 0) ? 0 : 1))
+                    .totalElementos(totalElementos)
+                    .totalPaginas(totalPaginas)
                     .build();
+
         } catch (MyBatisSystemException ex) {
             throw new SidepException("Error al consultar findAsistenciaPorMesAndDia en AsistenciaRepository", ex);
         }
     }
 
+    /**
+     * Búsqueda (paginada) de asistencias por rango de fechas (periodoDesde/Hasta),
+     * establecimiento, región, provincia, comuna, etc.
+     */
     @Override
     @Transactional(readOnly = true)
     public PaginationResultModel<AsistenciaModel> findAllAsistencia(
@@ -186,12 +250,8 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
                     .comuna(comuna)
                     .build();
 
-            // Manejo de paginación => asume que pageNumber=1 es la primera página
             if (pageNumber != null) {
-                // Si no envían pageSize, usar un DEFAULT_PAGE_SIZE
                 int size = (pageSize != null) ? pageSize : DEFAULT_PAGE_SIZE;
-
-                // Forzamos un valor mínimo 1 para no tener offset negativo
                 int safePageNumber = (pageNumber < 1) ? 1 : pageNumber;
 
                 filter.setOrder("ASC");
@@ -203,12 +263,9 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             List<AsistenciaModel> result = asistenciaRepository.findAll(filter);
             Long total = asistenciaRepository.countTotal(filter);
 
-            if (result == null || result.isEmpty()) {
+            if (result.isEmpty()) {
                 return PaginationResultModel.nullResult();
             }
-
-            // Cálculo de total de páginas: total / pageSize
-            // (Si no usas la página, no pasa nada)
             long totalElementos = total;
             int sizeUsed = (filter.getLimit() != null) ? filter.getLimit() : result.size();
             long totalPaginas = totalElementos / sizeUsed;
@@ -228,69 +285,35 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
     }
 
 
-
     private AsistenciaEntity toEntityIndividual(AsistenciaIndividualModel m) {
         AsistenciaEntity e = new AsistenciaEntity();
-
         if (m.getId() == null || m.getId() == 0) {
             e.setId(null);
         } else {
             e.setId(m.getId());
         }
-
         e.setCalendarioId(m.getCalendarioId());
+        // En este punto se debe tener ya calculado y seteado el calendarioId
         e.setFechaActualizacion(LocalDateTime.now());
-
+        // Se setea el flag presente desde el modelo
+        e.setPresente(m.getPresente());
         return e;
     }
 
-    private AsistenciaEntity toEntity(AsistenciaModel m) {
-        AsistenciaEntity e = new AsistenciaEntity();
-
-        if (m.getId() == null || m.getId() == 0) {
-            e.setId(null);
-        } else {
-            e.setId(m.getId());
+    // Si se requiere convertir de entidad a modelo para el GET
+    private AsistenciaModel toModel(AsistenciaEntity e, AsistenciaIndividualModel m) {
+        AsistenciaModel model = new AsistenciaModel();
+        model.setId(e.getId());
+        model.setRbd(m.getRbd().toString());
+        model.setGrado(m.getGrado().toString());
+        model.setLetra(m.getLetra());
+        model.setRut(Long.valueOf(m.getRut()));
+        model.setPresente(e.getPresente());
+        // Convertir la fecha (por ejemplo, a String) si es necesario:
+        if (e.getFechaCreacion() != null) {
+            model.setFechaRegistro(e.getFechaCreacion().toString());
         }
-
-        e.setCalendarioId(m.getCalendarioId());
-        e.setFechaActualizacion(LocalDateTime.now());
-
-        return e;
+        return model;
     }
 
-    private AsistenciaModel toModel(AsistenciaEntity m) {
-        AsistenciaModel e = new AsistenciaModel();
-
-        if (m.getId() == null || m.getId() == 0) {
-            e.setId(null);
-        } else {
-            e.setId(m.getId());
-        }
-
-        e.setCalendarioId(m.getCalendarioId());
-        e.setFechaActualizacion(LocalDateTime.now());
-
-        return e;
-    }
-
-    private CalendarioEntity toCalendarioEntity(CalendarioModel m) {
-        CalendarioEntity e = new CalendarioEntity();
-        e.setId(m.getId());
-        e.setTrabajado(m.getTrabajado());
-        e.setFechaActualizacion(m.getFechaActualizacion());
-        e.setGrupoId(m.getGrupo() != null ? m.getGrupo().getId() : null);
-        e.setFechaCreacion(m.getFechaCreacion());
-        e.setFechaActualizacion(e.getFechaActualizacion());
-        return e;
-    }
-
-    private CalendarioModel toCalendarioModel(CalendarioEntity e) {
-        CalendarioModel m = new CalendarioModel();
-        m.setId(e.getId());
-        m.setTrabajado(e.getTrabajado());
-        m.setFechaActualizacion(e.getFechaActualizacion());
-        m.setFechaCreacion(e.getFechaCreacion());
-        return m;
-    }
 }

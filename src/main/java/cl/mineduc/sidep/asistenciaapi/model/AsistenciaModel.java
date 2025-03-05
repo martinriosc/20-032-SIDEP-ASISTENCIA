@@ -9,18 +9,17 @@ import java.time.LocalDateTime;
 public class AsistenciaModel {
     private Long id;
     private String rbd;
-    private String ensenanza;
-    private String nivelGrado;
+    private String grado;
     private String letra;
-    private Integer rut;
-    private LocalDate fecha;
-    private Boolean asistio;
+    private Long rut;
+    private Boolean presente;
+    private String calendarioFecha;
+    private String calendarioTrabajado;
+    private String fechaRegistro;
+    private String fechaActualizacion;
     private Long calendarioId;
     private Long matriculaGrupoId;
     private String jsonAsistencia;
     private String jsonAsistencia2;
-    private LocalDate calendarioFecha;
-    private Boolean calendarioTrabajado;
-    private LocalDateTime fechaRegistro;
-    private LocalDateTime fechaActualizacion;
+
 }

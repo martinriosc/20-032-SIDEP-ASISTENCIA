@@ -89,11 +89,12 @@ public class CalendarioRepository {
     /**
      * Busca un calendario por Dia y Mes.
      */
-    public CalendarioModel findByDiaMes(int dia, int mes) {
+    public CalendarioModel findByDiaMesAnio(int dia, int mes, int anio) {
         Map<String, Object> params = new HashMap<>();
         params.put("dia", dia);
         params.put("mes", mes);
-        return calendarioMapper.findByDiaMes(params);
+        params.put("anio", anio);
+        return calendarioMapper.findByDiaMesAnio(params);
     }
 
 }

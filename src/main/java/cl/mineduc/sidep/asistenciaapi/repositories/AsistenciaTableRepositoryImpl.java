@@ -28,6 +28,8 @@ public class AsistenciaTableRepositoryImpl implements AsistenciaTableRepository 
     @Override
     public void update(Long id, AsistenciaEntity as) {
         try {
+            System.out.println("asistencia: "+ as.toString());
+            System.out.println("presente asistencia: "+ as.getPresente());
             this.asistenciaTableMapper.update(id, as);
         } catch (MyBatisSystemException e) {
             log.error(e.getMessage(), e);
@@ -122,6 +124,66 @@ public class AsistenciaTableRepositoryImpl implements AsistenciaTableRepository 
         } catch (MyBatisSystemException e) {
             log.error(e.getMessage(), e);
             throw new SostenedorException("Error al buscar matricula grupo", e);
+        }
+    }
+
+    @Override
+    public Long findNivelGradoIdByNombre(Long grado) {
+        try {
+            return this.asistenciaTableMapper.findNivelGradoIdByNombre(grado);
+        } catch (MyBatisSystemException e) {
+            log.error(e.getMessage(), e);
+            throw new SostenedorException("Error al buscar findNivelGradoIdByNombre", e);
+        }
+    }
+
+    @Override
+    public Long findGradoByUnidadEducativaAndNivelGrado(Long unidadEducativa, Long nivelGrado) {
+        try {
+            return this.asistenciaTableMapper.findGradoByUnidadEducativaAndNivelGrado(unidadEducativa, nivelGrado);
+        } catch (MyBatisSystemException e) {
+            log.error(e.getMessage(), e);
+            throw new SostenedorException("Error al buscar findGradoByUnidadEducativaAndNivelGrado", e);
+        }
+    }
+
+    @Override
+    public Long findGrupoByGradoLetra(Long grado, String letra) {
+        try {
+            return this.asistenciaTableMapper.findGrupoByGradoLetra(grado, letra);
+        } catch (MyBatisSystemException e) {
+            log.error(e.getMessage(), e);
+            throw new SostenedorException("Error al buscar findGrupoByGradoLetra", e);
+        }
+    }
+
+    @Override
+    public Long findCalendarioByGrupoFecha(Long grupo, String ano, String mes, String dia) {
+        try {
+            return this.asistenciaTableMapper.findCalendarioByGrupoFecha(grupo, ano, mes, dia);
+        } catch (MyBatisSystemException e) {
+            log.error(e.getMessage(), e);
+            throw new SostenedorException("Error al buscar findCalendarioByGrupoFecha", e);
+        }
+    }
+
+    @Override
+    public Long findPersonaByRut(Integer rut) {
+        try {
+            return this.asistenciaTableMapper.findPersonaByRut(rut);
+        } catch (MyBatisSystemException e) {
+            log.error(e.getMessage(), e);
+            throw new SostenedorException("Error al buscar findPersonaByRut", e);
+        }
+    }
+
+    @Override
+    public Long findParvuloByPersona(Long persona) {
+        try {
+            return this.asistenciaTableMapper.findParvuloByPersona(persona);
+        } catch (MyBatisSystemException e) {
+            log.error(e.getMessage(), e);
+            throw new SostenedorException("Error al buscar findParvuloByPersona", e);
         }
     }
 }

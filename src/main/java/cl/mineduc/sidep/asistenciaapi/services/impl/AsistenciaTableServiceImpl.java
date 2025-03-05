@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 public class AsistenciaTableServiceImpl implements AsistenciaTableService {
@@ -19,77 +21,149 @@ public class AsistenciaTableServiceImpl implements AsistenciaTableService {
     @Override
     @Transactional
     public AsistenciaModel save(AsistenciaIndividualModel asistencia) {
-        Long grupo = checkFound(
-                this.asistenciaTableRepository.findGrupoByRbdLetraNivelJornada(
-                        asistencia.getGrado(),
-                        asistencia.getLetra(),
-                        asistencia.getJornada().getId(),
-                        asistencia.getRbd()
-                ),
-                "No se encontró el grupo para la jornada, grado, letra y rbd especificados."
+        Long unidadEducativaId = checkFound(
+                asistenciaTableRepository.findUnidadEducativaByRbd(asistencia.getRbd()),
+                "No se encontró la Unidad Educativa para el RBD especificado."
         );
 
-        Long calendario = checkFound(
-                this.asistenciaTableRepository.findCalendarioByGrupo(grupo),
-                "No se encontró el calendario para el grupo especificado."
+        Long nivelGradoId = checkFound(
+                asistenciaTableRepository.findNivelGradoIdByNombre(asistencia.getGrado()),
+                "No se encontró el nivel de grado para el grado especificado."
         );
 
-        Long unidadEducativa = checkFound(
-                this.asistenciaTableRepository.findUnidadEducativaByRbd(asistencia.getRbd()),
-                "No se encontró la unidad educativa para el RBD especificado."
+        Long gradoId = checkFound(
+                asistenciaTableRepository.findGradoByUnidadEducativaAndNivelGrado(unidadEducativaId, nivelGradoId),
+                "No se encontró el grado para la unidad educativa y el nivel de grado."
         );
 
-        Long parvulo = checkFound(
-                this.asistenciaTableRepository.findByRut(asistencia.getRut()),
-                "No se encontró el párvulo para el rut especificado."
+        Long grupoId = checkFound(
+                asistenciaTableRepository.findGrupoByGradoLetra(gradoId, asistencia.getLetra()),
+                "No se encontró el grupo para el grado y la letra especificados."
         );
 
-        Long matriculaUe = checkFound(
-                this.asistenciaTableRepository.findMatriculaUnidadEducativa(parvulo, unidadEducativa),
-                "No se encontró la matrícula de la unidad educativa para el párvulo y unidad educativa especificados."
+        if (asistencia.getMes() == null || asistencia.getDia() == null) {
+            throw new SostenedorException("Debe especificar mes y día para obtener el calendario del año vigente.");
+        }
+
+        Long calendarioId = checkFound(
+                asistenciaTableRepository.findCalendarioByGrupoFecha(grupoId, String.valueOf(LocalDate.now().getYear()), asistencia.getMes(), asistencia.getDia()),
+                "No se encontró el calendario para el grupo y la fecha especificados."
         );
 
-        Long matriculaGrupo = checkFound(
-                this.asistenciaTableRepository.findMatriculaGrupo(grupo, matriculaUe),
-                "No se encontró la matrícula del grupo para el grupo y matrícula de la unidad educativa especificados."
+        Long personaId = checkFound(
+                asistenciaTableRepository.findPersonaByRut(asistencia.getRut()),
+                "No se encontró la persona para el rut especificado."
         );
 
-        validarReglasAsistencia(calendario, matriculaGrupo);
+        Long parvuloId = checkFound(
+                asistenciaTableRepository.findParvuloByPersona(personaId),
+                "No se encontró el párvulo para la persona especificada."
+        );
 
-        asistencia.setCalendarioId(calendario);
+        Long matriculaUeId = checkFound(
+                asistenciaTableRepository.findMatriculaUnidadEducativa(parvuloId, unidadEducativaId),
+                "No se encontró la matrícula de la unidad educativa para el párvulo y la UE especificados."
+        );
 
-        AsistenciaEntity entity = this.toEntity(asistencia, matriculaGrupo);
-        this.asistenciaTableRepository.save(entity);
+        Long matriculaGrupoId = checkFound(
+                asistenciaTableRepository.findMatriculaGrupo(grupoId, matriculaUeId),
+                "No se encontró la matrícula del grupo."
+        );
 
-        return this.toModel(entity, asistencia);
+        validarReglasAsistencia(calendarioId, matriculaGrupoId);
+
+        AsistenciaEntity entity = toEntity(asistencia, calendarioId, matriculaGrupoId, asistencia.getPresente());
+
+        System.out.println("Entity: " + entity.toString());
+        System.out.println("Entity: " + entity.getPresente());
+
+
+        asistenciaTableRepository.save(entity);
+
+        return toModel(entity, asistencia);
     }
+
 
     @Override
     @Transactional
-    public AsistenciaModel update(Long id, AsistenciaIndividualModel as) {
-        return null;
+    public AsistenciaModel update(Long id, AsistenciaIndividualModel asistencia) {
+        Long unidadEducativaId = checkFound(
+                asistenciaTableRepository.findUnidadEducativaByRbd(asistencia.getRbd()),
+                "No se encontró la Unidad Educativa para el RBD especificado."
+        );
+
+        Long nivelGradoId = checkFound(
+                asistenciaTableRepository.findNivelGradoIdByNombre(asistencia.getGrado()),
+                "No se encontró el nivel de grado para el grado especificado."
+        );
+
+        Long gradoId = checkFound(
+                asistenciaTableRepository.findGradoByUnidadEducativaAndNivelGrado(unidadEducativaId, nivelGradoId),
+                "No se encontró el grado para la unidad educativa y el nivel de grado."
+        );
+
+        Long grupoId = checkFound(
+                asistenciaTableRepository.findGrupoByGradoLetra(gradoId, asistencia.getLetra()),
+                "No se encontró el grupo para el grado y la letra especificados."
+        );
+
+        if (asistencia.getMes() == null || asistencia.getDia() == null) {
+            throw new SostenedorException("Debe especificar mes y día para obtener el calendario del año vigente.");
+        }
+
+        Long calendarioId = checkFound(
+                asistenciaTableRepository.findCalendarioByGrupoFecha(grupoId, String.valueOf(LocalDate.now().getYear()), asistencia.getMes(), asistencia.getDia()),
+                "No se encontró el calendario para el grupo y la fecha especificados."
+        );
+
+        Long personaId = checkFound(
+                asistenciaTableRepository.findPersonaByRut(asistencia.getRut()),
+                "No se encontró la persona para el rut especificado."
+        );
+
+        Long parvuloId = checkFound(
+                asistenciaTableRepository.findParvuloByPersona(personaId),
+                "No se encontró el párvulo para la persona especificada."
+        );
+
+        Long matriculaUeId = checkFound(
+                asistenciaTableRepository.findMatriculaUnidadEducativa(parvuloId, unidadEducativaId),
+                "No se encontró la matrícula de la unidad educativa para el párvulo y la UE especificados."
+        );
+
+        Long matriculaGrupoId = checkFound(
+                asistenciaTableRepository.findMatriculaGrupo(grupoId, matriculaUeId),
+                "No se encontró la matrícula del grupo."
+        );
+
+        validarReglasAsistencia(calendarioId, matriculaGrupoId);
+
+        AsistenciaEntity entity = toEntity(asistencia, calendarioId, matriculaGrupoId, asistencia.getPresente());
+
+        asistenciaTableRepository.update(id, entity);
+
+        return toModel(entity, asistencia);
     }
 
+    /**
+     * Método que ejecuta validaciones extra de negocio
+     * (Grupo con docente, fecha calendario habilitada, etc.).
+     */
     private void validarReglasAsistencia(Long calendario, Long matriculaGrupo) {
-        /*Boolean cumpleAsistencia = asistenciaTableRepository.validarAsistencia(calendario, matriculaGrupo);
-        if (Boolean.FALSE.equals(cumpleAsistencia)) {
-            throw new SostenedorException("No se cumplen las reglas de asistencia para la matrícula.");
-        }*/ //TODO: VALIDAR REGLA DE NEGOCIO
-
         Boolean tieneDocente = asistenciaTableRepository.validarGrupoTieneDocenteAsistente(matriculaGrupo);
         if (Boolean.FALSE.equals(tieneDocente)) {
             throw new SostenedorException("No se puede registrar asistencia: el grupo no tiene docente/asistente asignado.");
         }
 
-        Boolean fechaHabil = asistenciaTableRepository.validarFechaCalendarioHabil(calendario);
-        if (Boolean.FALSE.equals(fechaHabil)) {
-            throw new SostenedorException("La fecha del calendario no está habilitada para asistencia.");
-        }
+        //TODO: se debe revisar si es fecha habil o no segun API o BD que entreguen
+//        Boolean fechaHabil = asistenciaTableRepository.validarFechaCalendarioHabil(calendario);
+//        if (Boolean.FALSE.equals(fechaHabil)) {
+//            throw new SostenedorException("La fecha del calendario no está habilitada para asistencia.");
+//        }
     }
 
     /**
-     * Metodo para verificar que el valor no sea null.
-     * Si es null, lanza la excepcion con el mensaje enviado.
+     * Verifica que el valor no sea null, si es null lanza excepción con el mensaje.
      */
     private Long checkFound(Long value, String errorMessage) {
         if (value == null) {
@@ -97,5 +171,24 @@ public class AsistenciaTableServiceImpl implements AsistenciaTableService {
         }
         return value;
     }
+
+
+    /**
+     * Convierte el AsistenciaIndividualModel + IDs calculados en la entidad AsistenciaEntity.
+     * (Ajustar según tu DB, si usas jsonAsistencia, etc.).
+     */
+    private AsistenciaEntity toEntity(AsistenciaIndividualModel model, Long calendarioId, Long matriculaGrupoId, Boolean presente) {
+        AsistenciaEntity e = new AsistenciaEntity();
+        e.setCalendarioId(calendarioId);
+        e.setMatriculaGrupoId(matriculaGrupoId);
+        e.setPresente(model.getPresente());
+        return e;
+    }
+
+
+
+
+
+
 
 }

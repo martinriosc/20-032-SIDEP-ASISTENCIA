@@ -16,5 +16,5 @@ public interface CalendarioMapper {
     void delete(@Param("id") Long id);
     Long countTotal(CalendarioFilter filter);
 
-    CalendarioModel findByDiaMes(Map<String, Object> params);
+    CalendarioModel findByDiaMesAnio(Map<String, Object> params);
 }

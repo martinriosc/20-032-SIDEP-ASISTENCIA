@@ -14,9 +14,12 @@ public interface AsistenciaMapper {
     Long insert(AsistenciaEntity entity);
 
     // Un solo parámetro para update
-    void update(AsistenciaEntity entity);
+    void update(@Param("id") Long id, @Param("as") AsistenciaEntity as);
 
     void delete(@Param("id") Long id);
 
     Long countTotal(AsistenciaFilter filter);
+
+    AsistenciaModel findByCalendarioAndMatriculaGrupo(@Param("calendarioId") Long calendarioId,
+                                                      @Param("matriculaGrupoId") Long matriculaGrupoId);
 }

@@ -11,6 +11,7 @@
         <result property="fechaActualizacion" column="asis_fecha_actualizacion" />
         <result property="calendarioId" column="fk_asis_id_calendario" />
         <result property="matriculaGrupoId" column="fk_asis_id_matricula_grupo" />
+        <result property="presente" column="presente" />
         <result property="jsonAsistencia" column="asis_json_asistencia" />
         <result property="jsonAsistencia2" column="asis_json_asistencia_2" />
         <result property="calendarioFecha" column="cale_fecha" />
@@ -28,6 +29,7 @@
             a.fk_asis_id_matricula_grupo,
             a.asis_json_asistencia,
             a.asis_json_asistencia_2,
+            a.presente,
             c.cale_fecha,
             c.cale_trabajado
         FROM asistencia a
@@ -53,45 +55,75 @@
         )
     </insert>
 
-    <update id="update"
-            parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity">
+    <update id="update" parameterType="map">
         UPDATE asistencia
         SET
-            fk_asis_id_calendario    = #{as.calendario},
-            fk_asis_id_matricula_grupo = #{as.matriculaGrupo},
-            asis_json_asistencia     = #{as.jsonAsistencia},
-            asis_json_asistencia_2   = #{as.jsonAsistencia2},
+            fk_asis_id_calendario    = #{as.calendarioId},
+            fk_asis_id_matricula_grupo = #{as.matriculaGrupoId},
+            presente = #{as.presente},
             asis_fecha_actualizacion = CURRENT_TIMESTAMP
         WHERE pk_asis_id_asistencia = #{id}
     </update>
 
+
     <select id="findAll"
-            resultMap="asistenciaResultMap"
-            parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter">
-        <include refid="selectAsistencia" />
+            parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter"
+            resultMap="asistenciaResultMap">
+
+        SELECT
+        a.pk_asis_id_asistencia AS id,
+        a.asis_fecha_creacion AS fechaCreacion,
+        a.asis_fecha_actualizacion AS fechaActualizacion,
+        a.presente AS presente,
+        g.grup_letra AS letra,
+        p.pers_rut AS rut,
+        ue.uned_rbd AS rbd,
+        c.cale_fecha AS fechaCalendario
+
+        FROM asistencia a
+        LEFT JOIN calendario c
+        ON a.fk_asis_id_calendario = c.pk_cale_id_calendario
+        LEFT JOIN grupo g
+        ON c.fk_cale_id_grupo = g.pk_grup_id_grupo
+        LEFT JOIN grado grad
+        ON g.fk_grup_id_grado = grad.pk_grad_id_grado
+        LEFT JOIN unidad_educativa ue
+        ON grad.fk_grad_id_unidad_educativa = ue.pk_uned_id_unidad_educativa
+        LEFT JOIN matricula_grupo mg
+        ON a.fk_asis_id_matricula_grupo = mg.pk_matg_id_matricula_grupo
+        LEFT JOIN matricula_unidad_educativa mued
+        ON mg.fk_matg_id_matricula_ue = mued.pk_mued_id_matricula_unidad_educativa
+        LEFT JOIN parvulo pv
+        ON mued.fk_mued_id_parvulo = pv.pk_parv_id_parvulo
+        LEFT JOIN persona p
+        ON pv.fk_parv_id_persona = p.pk_pers_id_persona
+        LEFT JOIN jornada j
+        ON g.fk_grup_id_jornada = j.pk_jorn_id_jornada
+
         <where>
             <if test="rbd != null">
-                AND a.asis_json_asistencia::json->>'rbd' = #{rbd}
+                AND ue.uned_rbd = CAST(#{rbd} AS BIGINT)
             </if>
             <if test="ensenanza != null">
-                AND a.asis_json_asistencia::json->>'ensenanza' = #{ensenanza}
+                AND j.jorn_nombre = #{ensenanza}
             </if>
             <if test="grado != null">
-                AND a.asis_json_asistencia::json->>'grado' = #{grado}
+                AND grad.pk_grad_id_grado = CAST(#{grado} AS BIGINT)
             </if>
             <if test="letra != null">
-                AND a.asis_json_asistencia::json->>'letra' = #{letra}
+                AND g.grup_letra = #{letra}
             </if>
             <if test="rut != null">
-                AND a.asis_json_asistencia::json->>'rut' = CAST(#{rut} AS text)
+                AND p.pers_rut = CAST(#{rut} AS int4)
             </if>
-            <if test="periodoDesde != null">
-                AND a.asis_fecha_creacion &gt;= CAST(#{periodoDesde} AS DATE)
+            <if test="mes != null">
+                AND EXTRACT(MONTH FROM c.cale_fecha) = CAST(#{mes} AS int)
             </if>
-            <if test="periodoHasta != null">
-                AND a.asis_fecha_creacion &lt;= CAST(#{periodoHasta} AS DATE)
+            <if test="dia != null">
+                AND EXTRACT(DAY FROM c.cale_fecha) = CAST(#{dia} AS int)
             </if>
         </where>
+
         <if test="orderBy != null">
             ORDER BY ${orderBy} ${order}
         </if>
@@ -100,31 +132,53 @@
         </if>
     </select>
 
-    <select id="countTotal" parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter" resultType="java.lang.Long">
+    <select id="countTotal"
+            parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter"
+            resultType="long">
         SELECT COUNT(a.pk_asis_id_asistencia)
         FROM asistencia a
-        WHERE 1=1
-        <if test="rbd != null">
-            AND a.asis_json_asistencia::json->>'rbd' = #{rbd}
-        </if>
-        <if test="ensenanza != null">
-            AND a.asis_json_asistencia::json->>'ensenanza' = #{ensenanza}
-        </if>
-        <if test="grado != null">
-            AND a.asis_json_asistencia::json->>'grado' = #{grado}
-        </if>
-        <if test="letra != null">
-            AND a.asis_json_asistencia::json->>'letra' = #{letra}
-        </if>
-        <if test="rut != null">
-            AND a.asis_json_asistencia::json->>'rut' = CAST(#{rut} AS text)
-        </if>
-        <if test="periodoDesde != null">
-            AND a.asis_fecha_creacion &gt;= CAST(#{periodoDesde} AS DATE)
-        </if>
-        <if test="periodoHasta != null">
-            AND a.asis_fecha_creacion &lt;= CAST(#{periodoHasta} AS DATE)
-        </if>
+        JOIN calendario c
+        ON a.fk_asis_id_calendario = c.pk_cale_id_calendario
+        JOIN grupo g
+        ON c.fk_cale_id_grupo = g.pk_grup_id_grupo
+        JOIN grado grad
+        ON g.fk_grup_id_grado = grad.pk_grad_id_grado
+        JOIN unidad_educativa ue
+        ON grad.fk_grad_id_unidad_educativa = ue.pk_uned_id_unidad_educativa
+        JOIN matricula_grupo mg
+        ON a.fk_asis_id_matricula_grupo = mg.pk_matg_id_matricula_grupo
+        JOIN matricula_unidad_educativa mued
+        ON mg.fk_matg_id_matricula_ue = mued.pk_mued_id_matricula_unidad_educativa
+        JOIN parvulo pv
+        ON mued.fk_mued_id_parvulo = pv.pk_parv_id_parvulo
+        JOIN persona p
+        ON pv.fk_parv_id_persona = p.pk_pers_id_persona
+        JOIN jornada j
+        ON g.fk_grup_id_jornada = j.pk_jorn_id_jornada
+
+        <where>
+            <if test="rbd != null">
+                AND ue.uned_rbd = CAST(#{rbd} AS BIGINT)
+            </if>
+            <if test="ensenanza != null">
+                AND j.jorn_nombre = #{ensenanza}
+            </if>
+            <if test="grado != null">
+                AND grad.pk_grad_id_grado = CAST(#{grado} AS BIGINT)
+            </if>
+            <if test="letra != null">
+                AND g.grup_letra = #{letra}
+            </if>
+            <if test="rut != null">
+                AND p.pers_rut = CAST(#{rut} AS int4)
+            </if>
+            <if test="mes != null">
+                AND EXTRACT(MONTH FROM c.cale_fecha) = CAST(#{mes} AS int)
+            </if>
+            <if test="dia != null">
+                AND EXTRACT(DAY FROM c.cale_fecha) = CAST(#{dia} AS int)
+            </if>
+        </where>
     </select>
 
     <select id="findById" resultMap="asistenciaResultMap" parameterType="java.lang.Long">
@@ -211,5 +265,57 @@
         WHERE mg.fk_matg_id_grupo = #{grupo}
           AND mg.fk_matg_id_matricula_ue = #{matriculaUe}
     </select>
+
+    <select id="findNivelGradoIdByNombre" resultType="java.lang.Long">
+        SELECT ng.pk_nivel_grado_id
+        FROM nivel_grado ng
+        WHERE ng.pk_nivel_grado_id = #{grado}
+            LIMIT 1
+    </select>
+
+    <!-- Con idUnidadEducativa + idNivelGrado => obtienes el pk_grad_id_grado -->
+    <select id="findGradoByUnidadEducativaAndNivelGrado" resultType="java.lang.Long">
+        SELECT pk_grad_id_grado
+        FROM grado
+        WHERE fk_grad_id_unidad_educativa = #{unidadEducativa}
+          AND fk_grad_id_nivel_grado = #{nivelGrado}
+            LIMIT 1
+    </select>
+
+    <!-- Con idGrado + letra => obtienes pk_grup_id_grupo -->
+    <select id="findGrupoByGradoLetra" resultType="java.lang.Long">
+        SELECT pk_grup_id_grupo
+        FROM grupo
+        WHERE fk_grup_id_grado = #{grado}
+          AND grup_letra = #{letra}
+            LIMIT 1
+    </select>
+
+    <select id="findCalendarioByGrupoFecha" resultType="java.lang.Long">
+        SELECT c.pk_cale_id_calendario
+        FROM calendario c
+        WHERE c.fk_cale_id_grupo = #{grupo}
+          AND EXTRACT(YEAR FROM c.cale_fecha)  = CAST(#{anio} AS int)
+          AND EXTRACT(MONTH FROM c.cale_fecha) = CAST(#{mes}  AS int)
+          AND EXTRACT(DAY FROM c.cale_fecha)   = CAST(#{dia}  AS int)
+            LIMIT 1
+    </select>
+
+    <!-- Con rut => persona => pk_pers_id_persona -->
+    <select id="findPersonaByRut" resultType="java.lang.Long">
+        SELECT pk_pers_id_persona
+        FROM persona
+        WHERE pers_rut = #{rut}
+            LIMIT 1
+    </select>
+
+    <!-- Con idPersona => idParvulo -->
+    <select id="findParvuloByPersona" resultType="java.lang.Long">
+        SELECT pk_parv_id_parvulo
+        FROM parvulo
+        WHERE fk_parv_id_persona = #{persona}
+            LIMIT 1
+    </select>
+
 
 </mapper>

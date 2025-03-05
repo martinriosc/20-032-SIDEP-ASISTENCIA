@@ -50,7 +50,7 @@ public class AsistenciaControllerTest {
         AsistenciaIndividualModel input = new AsistenciaIndividualModel();
         input.setRut(12345678);
         AsistenciaModel expected = new AsistenciaModel();
-        expected.setRut(12345678);
+        expected.setRut(12345678L);
 
         when(asistenciaService.updateAsistenciaPupiloPorDia(any())).thenReturn(expected);
 
@@ -78,7 +78,7 @@ public class AsistenciaControllerTest {
         a2.setRut(22222222);
 
         AsistenciaModel expected = new AsistenciaModel();
-        expected.setAsistio(true);
+        expected.setPresente(true);
 
         when(asistenciaService.updateAsistenciaGrupalPupiloPorDia(anyList()))
                 .thenReturn(Arrays.asList(expected));
@@ -182,7 +182,7 @@ public class AsistenciaControllerTest {
         AsistenciaIndividualModel input = new AsistenciaIndividualModel();
         input.setRut(12345678);
         AsistenciaModel expected = new AsistenciaModel();
-        expected.setRut(12345678);
+        expected.setRut(12345678L);
 
         when(asistenciaTableService.save(any(AsistenciaIndividualModel.class)))
                 .thenReturn(expected);

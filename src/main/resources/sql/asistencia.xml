@@ -35,37 +35,37 @@
             parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity"
             useGeneratedKeys="true" keyProperty="id" keyColumn="pk_asis_id_asistencia">
         INSERT INTO asistencia
-        (
-            fk_asis_id_calendario,
-            fk_asis_id_matricula_grupo,
-            asis_fecha_creacion
+        (fk_asis_id_calendario,
+         fk_asis_id_matricula_grupo,
+         asis_fecha_creacion,
+         presente
         )
         VALUES
             (
                 #{calendarioId},
                 #{matriculaGrupoId},
-                CURRENT_TIMESTAMP
+                CURRENT_TIMESTAMP,
+                #{presente}
             )
+
     </insert>
 
-    <!-- UPDATE -->
-    <update id="update"
-            parameterType="cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity">
+    <update id="update" parameterType="map">
         UPDATE asistencia
         SET
-            fk_asis_id_calendario     = #{calendarioId},
-            fk_asis_id_matricula_grupo = #{matriculaGrupoId},
-            asis_fecha_actualizacion  = CURRENT_TIMESTAMP
+            fk_asis_id_calendario    = #{as.calendarioId},
+            fk_asis_id_matricula_grupo = #{as.matriculaGrupoId},
+            presente = #{as.presente},
+            asis_fecha_actualizacion = CURRENT_TIMESTAMP
         WHERE pk_asis_id_asistencia = #{id}
     </update>
 
-    <!-- DELETE -->
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM asistencia
         WHERE pk_asis_id_asistencia = #{id}
     </delete>
 
-    <!-- SELECT findAll -->
+
     <select id="findAll"
             parameterType="cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter"
             resultMap="asistenciaResultMap">
@@ -75,6 +75,7 @@
         a.asis_fecha_creacion              AS fechaCreacion,
         a.asis_fecha_actualizacion         AS fechaActualizacion,
         g.grup_letra                       AS letra,
+        a.presente                         AS presente,
         p.pers_rut                         AS rut,
         ue.uned_rbd                        AS rbd,
         c.cale_fecha                       AS fechaCalendario
@@ -187,6 +188,24 @@
             parameterType="java.lang.Long">
         <include refid="selectAsistencia" />
         WHERE a.pk_asis_id_asistencia = #{id}
+    </select>
+
+    <select id="findByCalendarioAndMatriculaGrupo" resultMap="asistenciaResultMap" parameterType="map">
+        SELECT
+            a.pk_asis_id_asistencia,
+            a.asis_fecha_creacion,
+            a.asis_fecha_actualizacion,
+            a.fk_asis_id_calendario,
+            a.fk_asis_id_matricula_grupo,
+            a.presente,
+            c.cale_fecha,
+            c.cale_trabajado
+        FROM asistencia a
+                 JOIN calendario c
+                      ON a.fk_asis_id_calendario = c.pk_cale_id_calendario
+        WHERE a.fk_asis_id_calendario = #{calendarioId}
+          AND a.fk_asis_id_matricula_grupo = #{matriculaGrupoId}
+            LIMIT 1
     </select>
 
 

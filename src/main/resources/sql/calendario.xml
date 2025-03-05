@@ -103,18 +103,19 @@
         WHERE c.pk_cale_id_calendario = #{id}
     </select>
 
-    <select id="findByDiaMes" parameterType="map" resultType="cl.mineduc.sidep.asistenciaapi.model.CalendarioModel">
+    <select id="findByDiaMesAnio" parameterType="map" resultType="cl.mineduc.sidep.asistenciaapi.model.CalendarioModel">
         SELECT
-            pk_cale_id_calendario AS id,
-            fk_cale_id_grupo AS grupoId,
-            cale_fecha,
-            cale_trabajado AS trabajado,
-            cale_fecha_creacion,
-            cale_fecha_actualizacion
-        FROM calendario
-        WHERE EXTRACT(DAY FROM cale_fecha) = #{dia}
-          AND EXTRACT(MONTH FROM cale_fecha) = #{mes}
-            LIMIT 1
+            c.pk_cale_id_calendario AS id,
+            c.fk_cale_id_grupo AS grupoId,
+            c.cale_fecha,
+            c.cale_trabajado AS trabajado,
+            c.cale_fecha_creacion,
+            c.cale_fecha_actualizacion
+        FROM calendario c
+        WHERE EXTRACT(DAY FROM c.cale_fecha) = #{dia}
+          AND EXTRACT(MONTH FROM c.cale_fecha) = #{mes}
+            AND EXTRACT(YEAR FROM c.cale_fecha) = #{anio}
+                LIMIT 1
     </select>
 
 
