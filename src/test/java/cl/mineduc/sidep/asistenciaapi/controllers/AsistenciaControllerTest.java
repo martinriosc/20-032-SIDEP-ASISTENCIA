@@ -132,7 +132,7 @@ public class AsistenciaControllerTest {
         )).thenReturn(PaginationResultModel.<AsistenciaModel>builder().build());
 
         ResponseEntity<PaginationResultModel<AsistenciaModel>> response =
-                asistenciaController.findAsistencia(null, null, null, null, 12345678L, request);
+                asistenciaController.findAsistencia(null,  null, null, 12345678L, request);
 
         assertNotNull(response);
         assertNotNull(response.getBody());
@@ -145,7 +145,7 @@ public class AsistenciaControllerTest {
     public void findAsistencia_exception() {
         when(asistenciaService.findAsistencia(any(), any(), any(), anyLong()))
                 .thenThrow(new SidepException("Error", null));
-        asistenciaController.findAsistencia(null, null, null, null, 12345678L, request);
+        asistenciaController.findAsistencia(null,  null, null, 12345678L, request);
     }
 
     @Test
