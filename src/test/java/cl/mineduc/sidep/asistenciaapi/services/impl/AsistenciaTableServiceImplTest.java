@@ -48,7 +48,7 @@ public class AsistenciaTableServiceImplTest {
     public void save_ok() {
         AsistenciaIndividualModel input = loadAsistencia();
 
-        lenient().when(calendarioRepository.findByDiaMesAnio(28, 2, 2025))
+        lenient().when(calendarioRepository.findByDiaMesAnio(28, 2, 2025, 2L))
                 .thenReturn(new CalendarioModel() {{
                     setTrabajado(true);
                 }});

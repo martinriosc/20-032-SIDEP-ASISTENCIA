@@ -86,15 +86,14 @@ public class CalendarioRepository {
         }
     }
 
-    /**
-     * Busca un calendario por Dia y Mes.
-     */
-    public CalendarioModel findByDiaMesAnio(int dia, int mes, int anio) {
+    public CalendarioModel findByDiaMesAnio(int dia, int mes, int anio, Long grupoId) {
         Map<String, Object> params = new HashMap<>();
         params.put("dia", dia);
         params.put("mes", mes);
         params.put("anio", anio);
+        params.put("grupoId", grupoId);
         return calendarioMapper.findByDiaMesAnio(params);
     }
+
 
 }

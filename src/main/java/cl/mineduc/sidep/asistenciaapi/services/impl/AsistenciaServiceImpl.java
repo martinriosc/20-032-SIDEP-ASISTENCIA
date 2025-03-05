@@ -54,7 +54,18 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             int mes = Integer.parseInt(mesStr);
             int anio = LocalDate.now().getYear();
 
-            CalendarioModel calendario = calendarioRepository.findByDiaMesAnio(dia, mes, anio);
+            Long unidadEducativaId = asistenciaTableRepository.findUnidadEducativaByRbd(asistenciaModel.getRbd());
+            Long nivelGradoId = asistenciaTableRepository.findNivelGradoIdByNombre(asistenciaModel.getGrado());
+            Long gradoId = asistenciaTableRepository.findGradoByUnidadEducativaAndNivelGrado(unidadEducativaId, nivelGradoId);
+            Long grupoId = asistenciaTableRepository.findGrupoByGradoLetra(gradoId, asistenciaModel.getLetra());
+            Long personaId = asistenciaTableRepository.findPersonaByRut(asistenciaModel.getRut());
+            Long parvuloId = asistenciaTableRepository.findParvuloByPersona(personaId);
+            Long matriculaUeId = asistenciaTableRepository.findMatriculaUnidadEducativa(parvuloId, unidadEducativaId);
+            Long matriculaGrupoId = asistenciaTableRepository.findMatriculaGrupo(grupoId, matriculaUeId);
+
+
+            CalendarioModel calendario = calendarioRepository.findByDiaMesAnio(dia, mes, anio, grupoId);
+
             if (calendario == null) {
                 throw new SidepException(String.format(
                         "No existe un calendario para la fecha: día %d, mes %d, año %d",
@@ -65,14 +76,6 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
                 throw new SidepException("No se puede actualizar asistencia: la fecha no es trabajada.", null);
             }
 
-            Long unidadEducativaId = asistenciaTableRepository.findUnidadEducativaByRbd(asistenciaModel.getRbd());
-            Long nivelGradoId = asistenciaTableRepository.findNivelGradoIdByNombre(asistenciaModel.getGrado());
-            Long gradoId = asistenciaTableRepository.findGradoByUnidadEducativaAndNivelGrado(unidadEducativaId, nivelGradoId);
-            Long grupoId = asistenciaTableRepository.findGrupoByGradoLetra(gradoId, asistenciaModel.getLetra());
-            Long personaId = asistenciaTableRepository.findPersonaByRut(asistenciaModel.getRut());
-            Long parvuloId = asistenciaTableRepository.findParvuloByPersona(personaId);
-            Long matriculaUeId = asistenciaTableRepository.findMatriculaUnidadEducativa(parvuloId, unidadEducativaId);
-            Long matriculaGrupoId = asistenciaTableRepository.findMatriculaGrupo(grupoId, matriculaUeId);
 
             Map<String, Object> params = new HashMap<>();
 
@@ -81,7 +84,6 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             params.put("matriculaGrupoId", matriculaGrupoId);
 
             AsistenciaModel asistenciaExistente = asistenciaRepository.findByCalendarioAndMatriculaGrupo(calendarioId, matriculaGrupoId);
-
 
             asistenciaModel.setCalendarioId(calendario.getId());
 

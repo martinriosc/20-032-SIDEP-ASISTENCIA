@@ -114,9 +114,11 @@
         FROM calendario c
         WHERE EXTRACT(DAY FROM c.cale_fecha) = #{dia}
           AND EXTRACT(MONTH FROM c.cale_fecha) = #{mes}
-            AND EXTRACT(YEAR FROM c.cale_fecha) = #{anio}
-                LIMIT 1
+          AND EXTRACT(YEAR FROM c.cale_fecha) = #{anio}
+          AND c.fk_cale_id_grupo = #{grupoId}
+            LIMIT 1
     </select>
+
 
 
 </mapper>
