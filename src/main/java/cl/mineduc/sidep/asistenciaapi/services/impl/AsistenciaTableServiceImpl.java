@@ -70,13 +70,9 @@ public class AsistenciaTableServiceImpl implements AsistenciaTableService {
                 "No se encontró la matrícula del grupo."
         );
 
-        validarReglasAsistencia(calendarioId, matriculaGrupoId);
+        validarReglasAsistencia(matriculaGrupoId);
 
-        AsistenciaEntity entity = toEntity(asistencia, calendarioId, matriculaGrupoId, asistencia.getPresente());
-
-        System.out.println("Entity: " + entity.toString());
-        System.out.println("Entity: " + entity.getPresente());
-
+        AsistenciaEntity entity = toEntity(asistencia, calendarioId, matriculaGrupoId);
 
         asistenciaTableRepository.save(entity);
 
@@ -136,9 +132,9 @@ public class AsistenciaTableServiceImpl implements AsistenciaTableService {
                 "No se encontró la matrícula del grupo."
         );
 
-        validarReglasAsistencia(calendarioId, matriculaGrupoId);
+        validarReglasAsistencia(matriculaGrupoId);
 
-        AsistenciaEntity entity = toEntity(asistencia, calendarioId, matriculaGrupoId, asistencia.getPresente());
+        AsistenciaEntity entity = toEntity(asistencia, calendarioId, matriculaGrupoId);
 
         asistenciaTableRepository.update(id, entity);
 
@@ -149,17 +145,12 @@ public class AsistenciaTableServiceImpl implements AsistenciaTableService {
      * Método que ejecuta validaciones extra de negocio
      * (Grupo con docente, fecha calendario habilitada, etc.).
      */
-    private void validarReglasAsistencia(Long calendario, Long matriculaGrupo) {
+    private void validarReglasAsistencia(Long matriculaGrupo) {
         Boolean tieneDocente = asistenciaTableRepository.validarGrupoTieneDocenteAsistente(matriculaGrupo);
         if (Boolean.FALSE.equals(tieneDocente)) {
             throw new SostenedorException("No se puede registrar asistencia: el grupo no tiene docente/asistente asignado.");
         }
 
-        //TODO: se debe revisar si es fecha habil o no segun API o BD que entreguen
-//        Boolean fechaHabil = asistenciaTableRepository.validarFechaCalendarioHabil(calendario);
-//        if (Boolean.FALSE.equals(fechaHabil)) {
-//            throw new SostenedorException("La fecha del calendario no está habilitada para asistencia.");
-//        }
     }
 
     /**
@@ -177,17 +168,13 @@ public class AsistenciaTableServiceImpl implements AsistenciaTableService {
      * Convierte el AsistenciaIndividualModel + IDs calculados en la entidad AsistenciaEntity.
      * (Ajustar según tu DB, si usas jsonAsistencia, etc.).
      */
-    private AsistenciaEntity toEntity(AsistenciaIndividualModel model, Long calendarioId, Long matriculaGrupoId, Boolean presente) {
+    private AsistenciaEntity toEntity(AsistenciaIndividualModel model, Long calendarioId, Long matriculaGrupoId) {
         AsistenciaEntity e = new AsistenciaEntity();
         e.setCalendarioId(calendarioId);
         e.setMatriculaGrupoId(matriculaGrupoId);
         e.setPresente(model.getPresente());
         return e;
     }
-
-
-
-
 
 
 

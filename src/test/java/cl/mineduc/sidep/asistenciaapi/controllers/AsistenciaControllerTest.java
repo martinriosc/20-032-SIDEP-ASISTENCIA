@@ -103,49 +103,49 @@ public class AsistenciaControllerTest {
     @Test
     public void findAsistenciaPorMesAndDia() {
         when(asistenciaService.findAsistenciaPorMesAndDia(
-                any(), any(), any(), any(), any(), any(), anyLong()
+                any(), any(), any(), any(), any(), anyLong()
         )).thenReturn(PaginationResultModel.<AsistenciaModel>builder().build());
 
         ResponseEntity<PaginationResultModel<AsistenciaModel>> response =
                 asistenciaController.findAsistenciaPorMesAndDia(
-                        null, null, null, null, null, null, 12345678L, request
+                        null, null, null, null, null, 12345678L, request
                 );
 
         assertNotNull(response);
         assertNotNull(response.getBody());
         verify(asistenciaService, times(1)).findAsistenciaPorMesAndDia(
-                any(), any(), any(), any(), any(), any(), anyLong()
+                any(), any(), any(), any(), any(), anyLong()
         );
     }
 
     @Test(expected = SidepException.class)
     public void findAsistenciaPorMesAndDia_exception() {
-        when(asistenciaService.findAsistenciaPorMesAndDia(any(), any(), any(), any(), any(), any(), anyLong()))
+        when(asistenciaService.findAsistenciaPorMesAndDia(any(), any(), any(), any(), any(), anyLong()))
                 .thenThrow(new SidepException("Error", null));
-        asistenciaController.findAsistenciaPorMesAndDia(null, null, null, null, null, null, 12345678L, request);
+        asistenciaController.findAsistenciaPorMesAndDia(null, null, null, null, null, 12345678L, request);
     }
 
     @Test
     public void findAsistencia() {
         when(asistenciaService.findAsistencia(
-                any(), any(), any(), any(), anyLong()
+                any(), any(), any(), anyLong()
         )).thenReturn(PaginationResultModel.<AsistenciaModel>builder().build());
 
         ResponseEntity<PaginationResultModel<AsistenciaModel>> response =
-                asistenciaController.findAsistencia(null, null, null, null, 12345678L, request);
+                asistenciaController.findAsistencia(null,  null, null, 12345678L, request);
 
         assertNotNull(response);
         assertNotNull(response.getBody());
         verify(asistenciaService, times(1)).findAsistencia(
-                any(), any(), any(), any(), anyLong()
+                any(), any(), any(), anyLong()
         );
     }
 
     @Test(expected = SidepException.class)
     public void findAsistencia_exception() {
-        when(asistenciaService.findAsistencia(any(), any(), any(), any(), anyLong()))
+        when(asistenciaService.findAsistencia(any(), any(), any(), anyLong()))
                 .thenThrow(new SidepException("Error", null));
-        asistenciaController.findAsistencia(null, null, null, null, 12345678L, request);
+        asistenciaController.findAsistencia(null,  null, null, 12345678L, request);
     }
 
     @Test

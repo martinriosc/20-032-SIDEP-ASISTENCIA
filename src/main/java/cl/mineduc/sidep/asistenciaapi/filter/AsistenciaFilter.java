@@ -3,8 +3,6 @@ package cl.mineduc.sidep.asistenciaapi.filter;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDate;
-
 /**
  * Filtro para la búsqueda de asistencias.
  * Combina campos de ejemplo usados en distintos endpoints del AsistenciaController.
@@ -13,7 +11,6 @@ import java.time.LocalDate;
 @Builder
 public class AsistenciaFilter {
     private String rbd;
-    private String ensenanza;
     private String grado;
     private String letra;
     private String mes;

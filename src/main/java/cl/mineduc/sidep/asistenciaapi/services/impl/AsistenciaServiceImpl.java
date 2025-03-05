@@ -131,15 +131,14 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResultModel<AsistenciaModel> findAsistencia(
-            String rbd, String ensenanza, String grado, String letra, Long rut
+            String rbd, String grado, String letra, Long rut
     ) {
         try {
-            log.info("findAsistencia: rbd={}, ensenanza={}, grado={}, letra={}, rut={}",
-                    rbd, ensenanza, grado, letra, rut);
+            log.info("findAsistencia: rbd={}, grado={}, letra={}, rut={}",
+                    rbd,  grado, letra, rut);
 
             AsistenciaFilter filter = AsistenciaFilter.builder()
                     .rbd(rbd)
-                    .ensenanza(ensenanza)
                     .grado(grado)
                     .letra(letra)
                     .rut(rut)
@@ -177,7 +176,6 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
     @Transactional(readOnly = true)
     public PaginationResultModel<AsistenciaModel> findAsistenciaPorMesAndDia(
             String rbd,
-            String ensenanza,
             String grado,
             String letra,
             String mes,
@@ -185,12 +183,11 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             Long rut
     ) {
         try {
-            log.info("findAsistenciaPorMesAndDia: rbd={}, ensenanza={}, grado={}, letra={}, mes={}, dia={}, rut={}",
-                    rbd, ensenanza, grado, letra, mes, dia, rut);
+            log.info("findAsistenciaPorMesAndDia: rbd={}, grado={}, letra={}, mes={}, dia={}, rut={}",
+                    rbd, grado, letra, mes, dia, rut);
 
             AsistenciaFilter filter = AsistenciaFilter.builder()
                     .rbd(rbd)
-                    .ensenanza(ensenanza)
                     .grado(grado)
                     .letra(letra)
                     .mes(mes)

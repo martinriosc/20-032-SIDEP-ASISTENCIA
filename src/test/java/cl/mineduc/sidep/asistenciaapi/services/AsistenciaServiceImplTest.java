@@ -290,7 +290,7 @@ public class AsistenciaServiceImplTest {
                 .thenReturn(1L);
 
         PaginationResultModel<AsistenciaModel> result =
-                asistenciaService.findAsistencia("123", "ENSE", "1", "A", 11111111L);
+                asistenciaService.findAsistencia("123",  "1", "A", 11111111L);
 
         assertNotNull(result);
         assertEquals(Long.valueOf(1L), result.getTotalElementos());
@@ -301,7 +301,7 @@ public class AsistenciaServiceImplTest {
     public void findAsistencia_exception() {
         doThrow(new MyBatisSystemException(new Exception()))
                 .when(asistenciaRepository).findAll(any(AsistenciaFilter.class));
-        asistenciaService.findAsistencia("123", "ENSE", "1", "A", 11111111L);
+        asistenciaService.findAsistencia("123", "1", "A", 11111111L);
     }
 
     @Test
@@ -312,7 +312,7 @@ public class AsistenciaServiceImplTest {
                 .thenReturn(0L);
 
         PaginationResultModel<AsistenciaModel> result =
-                asistenciaService.findAsistenciaPorMesAndDia("123", "ENSE", "1", "A", "01", "15", 11111111L);
+                asistenciaService.findAsistenciaPorMesAndDia("123", "1", "A", "01", "15", 11111111L);
 
         assertNotNull(result);
         assertEquals(Long.valueOf(0L), result.getTotalElementos());
@@ -323,7 +323,7 @@ public class AsistenciaServiceImplTest {
     public void findAsistenciaPorMesAndDia_exception() {
         doThrow(new MyBatisSystemException(new Exception()))
                 .when(asistenciaRepository).findAll(any(AsistenciaFilter.class));
-        asistenciaService.findAsistenciaPorMesAndDia("123", "ENSE", "1", "A", "01", "15", 11111111L);
+        asistenciaService.findAsistenciaPorMesAndDia("123", "1", "A", "01", "15", 11111111L);
     }
 
     @Test

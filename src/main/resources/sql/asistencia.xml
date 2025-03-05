@@ -104,9 +104,6 @@
             <if test="rbd != null">
                 AND ue.uned_rbd = CAST(#{rbd} AS BIGINT)
             </if>
-            <if test="ensenanza != null">
-                AND j.jorn_nombre = #{ensenanza}
-            </if>
             <if test="grado != null">
                 AND grad.pk_grad_id_grado = CAST(#{grado} AS BIGINT)
             </if>
@@ -160,9 +157,6 @@
         <where>
             <if test="rbd != null">
                 AND ue.uned_rbd = CAST(#{rbd} AS BIGINT)
-            </if>
-            <if test="ensenanza != null">
-                AND j.jorn_nombre = #{ensenanza}
             </if>
             <if test="grado != null">
                 AND grad.pk_grad_id_grado = CAST(#{grado} AS BIGINT)

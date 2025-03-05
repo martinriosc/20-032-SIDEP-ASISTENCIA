@@ -36,7 +36,6 @@ public class AsistenciaController {
     @GetMapping("/asistencia/get-dia-mes")
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAsistenciaPorMesAndDia(
             @RequestParam(name = "rbd", required = false) String rbd,
-            @RequestParam(name = "ensenanza", required = false) String ensenanza,
             @RequestParam(name = "grado", required = false) String grado,
             @RequestParam(name = "letra", required = false) String letra,
             @RequestParam(name = "mes", required = false) String mes,
@@ -45,20 +44,19 @@ public class AsistenciaController {
             HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(this.asistenciaService.findAsistenciaPorMesAndDia(
-                rbd, ensenanza, grado, letra, mes, dia, rut));
+                rbd,  grado, letra, mes, dia, rut));
     }
 
     @GetMapping("/asistencia/get")
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAsistencia(
             @RequestParam(name = "rbd", required = false) String rbd,
-            @RequestParam(name = "ensenanza", required = false) String ensenanza,
             @RequestParam(name = "grado", required = false) String grado,
             @RequestParam(name = "letra", required = false) String letra,
             @RequestParam(name = "rut", required = false) Long rut,
             HttpServletRequest httpServletRequest
     ) {
         return ResponseEntity.ok(this.asistenciaService.findAsistencia(
-                rbd, ensenanza, grado, letra, rut));
+                rbd, grado, letra, rut));
     }
 
     @GetMapping("/asistencia/list")

@@ -28,8 +28,6 @@ public class AsistenciaTableRepositoryImpl implements AsistenciaTableRepository 
     @Override
     public void update(Long id, AsistenciaEntity as) {
         try {
-            System.out.println("asistencia: "+ as.toString());
-            System.out.println("presente asistencia: "+ as.getPresente());
             this.asistenciaTableMapper.update(id, as);
         } catch (MyBatisSystemException e) {
             log.error(e.getMessage(), e);
