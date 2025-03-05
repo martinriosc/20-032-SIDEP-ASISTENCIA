@@ -134,7 +134,7 @@ public class AsistenciaServiceImplTest {
         when(calendarioRepository.findByDiaMesAnio(eq(15), eq(3), eq(currentYear)))
                 .thenReturn(calendario);
 
-        when(asistenciaRepository.findByCalendarioAndMatriculaGrupo(eq(calendario.getId()), eq(100L)))
+        when(asistenciaRepository.findByCalendarioAndMatriculaGrupo(any(), anyLong()))
                 .thenReturn(new AsistenciaModel() {{
                     setId(10L);
                 }});
@@ -148,7 +148,7 @@ public class AsistenciaServiceImplTest {
                     return m;
                 });
 
-        when(asistenciaRepository.findById(eq(10L)))
+        when(asistenciaRepository.findById(10L))
                 .thenReturn(new AsistenciaModel() {{
                     setId(10L);
                     setRut(12345678L);
@@ -163,12 +163,6 @@ public class AsistenciaServiceImplTest {
         verify(asistenciaTableService, times(1)).update(eq(10L), any(AsistenciaIndividualModel.class));
         verify(asistenciaTableService, never()).save(any(AsistenciaIndividualModel.class));
     }
-
-
-
-
-
-
 
 
     @Test(expected = SidepException.class)

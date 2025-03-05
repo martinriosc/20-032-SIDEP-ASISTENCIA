@@ -21,12 +21,12 @@ public interface IAsistenciaService {
     /**
      * Encuentra asistencias filtrando por RBD, enseñanza, grado, letra, y rut.
      */
-    PaginationResultModel<AsistenciaModel> findAsistencia(String rbd, String ensenanza, String grado, String letra, Long rut);
+    PaginationResultModel<AsistenciaModel> findAsistencia(String rbd, String grado, String letra, Long rut);
 
     /**
      * Encuentra asistencias filtrando por RBD, enseñanza, grado, letra, mes, día y rut.
      */
-    PaginationResultModel<AsistenciaModel> findAsistenciaPorMesAndDia(String rbd, String ensenanza, String grado, String letra,
+    PaginationResultModel<AsistenciaModel> findAsistenciaPorMesAndDia(String rbd, String grado, String letra,
                                                                       String mes, String dia, Long rut);
 
     /**
