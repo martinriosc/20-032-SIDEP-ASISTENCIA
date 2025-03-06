@@ -8,7 +8,7 @@ public interface AsistenciaTableMapper {
 
     void insert(AsistenciaEntity asistencia);
 
-    void update(@Param("id") Long id, @Param("as") AsistenciaEntity as);
+    void update(@Param("id") Long id, @Param("entity") AsistenciaEntity entity);
 
     Boolean validarAsistencia(@Param("calendario") Long calendario, @Param("matriculaGrupo") Long matriculaGrupo);
 

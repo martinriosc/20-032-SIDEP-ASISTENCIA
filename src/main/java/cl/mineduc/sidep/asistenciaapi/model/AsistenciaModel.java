@@ -21,5 +21,4 @@ public class AsistenciaModel {
     private Long matriculaGrupoId;
     private String jsonAsistencia;
     private String jsonAsistencia2;
-
 }

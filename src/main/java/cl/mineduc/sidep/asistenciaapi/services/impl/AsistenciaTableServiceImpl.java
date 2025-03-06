@@ -74,6 +74,8 @@ public class AsistenciaTableServiceImpl implements AsistenciaTableService {
 
         AsistenciaEntity entity = toEntity(asistencia, calendarioId, matriculaGrupoId);
 
+        System.out.println("Entity: "+ entity);
+
         asistenciaTableRepository.save(entity);
 
         return toModel(entity, asistencia);
@@ -133,10 +135,13 @@ public class AsistenciaTableServiceImpl implements AsistenciaTableService {
         );
 
         validarReglasAsistencia(matriculaGrupoId);
+        asistencia.setId(id);
 
         AsistenciaEntity entity = toEntity(asistencia, calendarioId, matriculaGrupoId);
 
+
         asistenciaTableRepository.update(id, entity);
+
 
         return toModel(entity, asistencia);
     }
@@ -170,12 +175,12 @@ public class AsistenciaTableServiceImpl implements AsistenciaTableService {
      */
     private AsistenciaEntity toEntity(AsistenciaIndividualModel model, Long calendarioId, Long matriculaGrupoId) {
         AsistenciaEntity e = new AsistenciaEntity();
+        e.setId(model.getId());
         e.setCalendarioId(calendarioId);
         e.setMatriculaGrupoId(matriculaGrupoId);
         e.setPresente(model.getPresente());
         return e;
     }
-
 
 
 }

@@ -4,6 +4,7 @@ import cl.mineduc.sidep.asistenciaapi.entities.AsistenciaEntity;
 import cl.mineduc.sidep.asistenciaapi.exceptions.SidepException;
 import cl.mineduc.sidep.asistenciaapi.filter.AsistenciaFilter;
 import cl.mineduc.sidep.asistenciaapi.mappers.AsistenciaMapper;
+import cl.mineduc.sidep.asistenciaapi.mappers.AsistenciaTableMapper;
 import cl.mineduc.sidep.asistenciaapi.model.AsistenciaModel;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.annotations.Param;
@@ -17,6 +18,7 @@ import java.util.List;
 public class AsistenciaRepository {
 
     private final AsistenciaMapper asistenciaMapper;
+    private final AsistenciaTableMapper asistenciaTableMapper;
 
     /**
      * Obtiene una lista de asistencias según el filtro.
@@ -45,13 +47,13 @@ public class AsistenciaRepository {
      * Actualiza una asistencia existente en la BDD y retorna la asistencia actualizada
      * (cargada desde la BD).
      */
-    public AsistenciaModel update(Long id, AsistenciaEntity entity) {
+    public AsistenciaModel update(Long id, AsistenciaEntity as) {
         try {
-            asistenciaMapper.update(id, entity);
+            asistenciaMapper.update(id, as);
 
             // Retornamos la asistencia consultándola nuevamente desde la BD
             // para obtener los datos frescos.
-            return this.findById(entity.getId());
+            return this.findById(as.getId());
 
         } catch (MyBatisSystemException e) {
             throw new SidepException("Error al actualizar la asistencia", e);
@@ -86,16 +88,6 @@ public class AsistenciaRepository {
         }
     }
 
-    /**
-     * Elimina un registro de asistencia por su ID.
-     */
-    public void delete(Long id) {
-        try {
-            asistenciaMapper.delete(id);
-        } catch (MyBatisSystemException e) {
-            throw new SidepException("Error al eliminar la asistencia", e);
-        }
-    }
 
 
     public AsistenciaModel findByCalendarioAndMatriculaGrupo(@Param("calendarioId") Long calendarioId,

@@ -63,7 +63,6 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             Long matriculaUeId = asistenciaTableRepository.findMatriculaUnidadEducativa(parvuloId, unidadEducativaId);
             Long matriculaGrupoId = asistenciaTableRepository.findMatriculaGrupo(grupoId, matriculaUeId);
 
-
             CalendarioModel calendario = calendarioRepository.findByDiaMesAnio(dia, mes, anio, grupoId);
 
             if (calendario == null) {
@@ -87,15 +86,31 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
 
             asistenciaModel.setCalendarioId(calendario.getId());
 
-            AsistenciaEntity entity = toEntityIndividual(asistenciaModel);
-            entity.setPresente(asistenciaModel.getPresente());
-
             if (asistenciaExistente != null) {
                 Long asistenciaId = asistenciaExistente.getId();
                 AsistenciaModel updated = asistenciaTableService.update(asistenciaId, asistenciaModel);
+                updated.setCalendarioFecha(asistenciaModel.getDia() + "/" + asistenciaModel.getMes() + "/" + anio);
+                updated.setGrado(String.valueOf(asistenciaModel.getGrado()));
+                updated.setLetra(asistenciaModel.getLetra());
+                updated.setRbd(String.valueOf(asistenciaModel.getRbd()));
+                updated.setRut(Long.valueOf(asistenciaModel.getRut()));
+                updated.setCalendarioTrabajado(String.valueOf(calendario.getTrabajado()));
+                updated.setFechaRegistro(asistenciaExistente.getFechaRegistro());
+                updated.setFechaActualizacion(asistenciaExistente.getFechaActualizacion());
+                updated.setCalendarioId(calendario.getId());
+                updated.setMatriculaGrupoId(matriculaGrupoId);
                 return updated;
             } else {
                 AsistenciaModel created = asistenciaTableService.save(asistenciaModel);
+                created.setCalendarioFecha(LocalDate.of(anio, mes, dia).toString());
+                created.setGrado(String.valueOf(asistenciaModel.getGrado()));
+                created.setLetra(asistenciaModel.getLetra());
+                created.setRbd(String.valueOf(asistenciaModel.getRbd()));
+                created.setRut(Long.valueOf(asistenciaModel.getRut()));
+                created.setFechaRegistro(LocalDateTime.now().toString());
+                created.setCalendarioTrabajado(String.valueOf(calendario.getTrabajado()));
+                created.setCalendarioId(calendario.getId());
+                created.setMatriculaGrupoId(matriculaGrupoId);
                 return created;
             }
 
@@ -135,7 +150,7 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
     ) {
         try {
             log.info("findAsistencia: rbd={}, grado={}, letra={}, rut={}",
-                    rbd,  grado, letra, rut);
+                    rbd, grado, letra, rut);
 
             AsistenciaFilter filter = AsistenciaFilter.builder()
                     .rbd(rbd)

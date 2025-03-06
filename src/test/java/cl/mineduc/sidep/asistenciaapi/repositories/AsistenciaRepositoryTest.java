@@ -103,16 +103,4 @@ public class AsistenciaRepositoryTest {
         asistenciaRepository.update(10L, e);
     }
 
-    @Test
-    public void delete_ok() {
-        doNothing().when(asistenciaMapper).delete(anyLong());
-        asistenciaRepository.delete(5L);
-        verify(asistenciaMapper, times(1)).delete(eq(5L));
-    }
-
-    @Test(expected = SidepException.class)
-    public void delete_exception() {
-        doThrow(MyBatisSystemException.class).when(asistenciaMapper).delete(anyLong());
-        asistenciaRepository.delete(5L);
-    }
 }

@@ -26,9 +26,9 @@ public class AsistenciaTableRepositoryImpl implements AsistenciaTableRepository 
     }
 
     @Override
-    public void update(Long id, AsistenciaEntity as) {
+    public void update(Long id, AsistenciaEntity entity) {
         try {
-            this.asistenciaTableMapper.update(id, as);
+            this.asistenciaTableMapper.update(id, entity);
         } catch (MyBatisSystemException e) {
             log.error(e.getMessage(), e);
             throw new SostenedorException("Error al actualizar asistencia", e);

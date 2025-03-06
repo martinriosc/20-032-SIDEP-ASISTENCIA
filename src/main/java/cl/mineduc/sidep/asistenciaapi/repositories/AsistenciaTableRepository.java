@@ -6,7 +6,7 @@ public interface AsistenciaTableRepository {
 
     void save(AsistenciaEntity asistencia);
 
-    void update(Long id, AsistenciaEntity as);
+    void update(Long id, AsistenciaEntity entity);
 
     Boolean validarAsistencia(Long calendario, Long matriculaGrupo);
 
