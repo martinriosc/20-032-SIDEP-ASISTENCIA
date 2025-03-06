@@ -74,8 +74,6 @@ public class AsistenciaTableServiceImpl implements AsistenciaTableService {
 
         AsistenciaEntity entity = toEntity(asistencia, calendarioId, matriculaGrupoId);
 
-        System.out.println("Entity: "+ entity);
-
         asistenciaTableRepository.save(entity);
 
         return toModel(entity, asistencia);
