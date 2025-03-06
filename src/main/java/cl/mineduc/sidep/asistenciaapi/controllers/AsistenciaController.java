@@ -33,51 +33,47 @@ public class AsistenciaController {
         return ResponseEntity.ok(this.asistenciaService.updateAsistenciaGrupalPupiloPorDia(asistenciaModel));
     }
 
-    @GetMapping("/asistencia/get-dia-mes")
+    @GetMapping("/asistencia/rbd/{rbd}/grado/{grado}/letra/{letra}/mes/{mes}/dia/{dia}/rut/{rut}")
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAsistenciaPorMesAndDia(
-            @RequestParam(name = "rbd", required = false) String rbd,
-            @RequestParam(name = "grado", required = false) String grado,
-            @RequestParam(name = "letra", required = false) String letra,
-            @RequestParam(name = "mes", required = false) String mes,
-            @RequestParam(name = "dia", required = false) String dia,
-            @RequestParam(name = "rut", required = false) Long rut,
-            HttpServletRequest httpServletRequest
-    ) {
-        return ResponseEntity.ok(this.asistenciaService.findAsistenciaPorMesAndDia(
-                rbd,  grado, letra, mes, dia, rut));
+            @PathVariable("rbd") String rbd,
+            @PathVariable("grado") String grado,
+            @PathVariable("letra") String letra,
+            @PathVariable("mes") String mes,
+            @PathVariable("dia") String dia,
+            @PathVariable("rut") Long rut) {
+        PaginationResultModel<AsistenciaModel> result = asistenciaService.findAsistenciaPorMesAndDia(rbd, grado, letra, mes, dia, rut);
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/asistencia/get")
+    @GetMapping("/asistencia/rbd/{rbd}/grado/{grado}/letra/{letra}/rut/{rut}")
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAsistencia(
-            @RequestParam(name = "rbd", required = false) String rbd,
-            @RequestParam(name = "grado", required = false) String grado,
-            @RequestParam(name = "letra", required = false) String letra,
-            @RequestParam(name = "rut", required = false) Long rut,
-            HttpServletRequest httpServletRequest
-    ) {
-        return ResponseEntity.ok(this.asistenciaService.findAsistencia(
-                rbd, grado, letra, rut));
+            @PathVariable("rbd") String rbd,
+            @PathVariable("grado") String grado,
+            @PathVariable("letra") String letra,
+            @PathVariable("rut") Long rut) {
+        PaginationResultModel<AsistenciaModel> result = asistenciaService.findAsistencia(rbd, grado, letra, rut);
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/asistencia/list")
+    @GetMapping("/asistencia/peridoDesde/{periodoDesde}/periodoHasta/{periodoHasta}/establecimiento/{establecimiento}/region/{region}/provincia/{provincia}/comuna/{comuna}/pageSize/{pageSize}/pageNumber/{pageNumber}")
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAllAsistencia(
-            @RequestParam(name = "periodoDesde", required = false) String periodoDesde,
-            @RequestParam(name = "periodoHasta", required = false) String periodoHasta,
-            @RequestParam(name = "establecimiento", required = false) String establecimiento,
-            @RequestParam(name = "region", required = false) String region,
-            @RequestParam(name = "provincia", required = false) String provincia,
-            @RequestParam(name = "comuna", required = false) String comuna,
-            @RequestParam(name = "pageSize", required = false) Integer pageSize,
-            @RequestParam(name = "pageNumber", required = false) Integer pageNumber,
-            HttpServletRequest httpServletRequest
-    ) {
-        return ResponseEntity.ok(this.asistenciaService.findAllAsistencia(
-                periodoDesde, periodoHasta, establecimiento, region, provincia, comuna, pageSize, pageNumber));
+            @PathVariable("periodoDesde") String periodoDesde,
+            @PathVariable("periodoHasta") String periodoHasta,
+            @PathVariable("establecimiento") String establecimiento,
+            @PathVariable("region") String region,
+            @PathVariable("provincia") String provincia,
+            @PathVariable("comuna") String comuna,
+            @PathVariable("pageSize") Integer pageSize,
+            @PathVariable("pageNumber") Integer pageNumber) {
+        PaginationResultModel<AsistenciaModel> result = asistenciaService.findAllAsistencia(
+                periodoDesde, periodoHasta, establecimiento, region, provincia, comuna, pageSize, pageNumber);
+        return ResponseEntity.ok(result);
     }
 
-    @PostMapping("")
+    @PostMapping("/asistencia")
     public ResponseEntity<AsistenciaModel> save(@Valid @RequestBody AsistenciaIndividualModel model) {
-        return ResponseEntity.ok(this.asistenciaTableService.save(model));
+        AsistenciaModel result = asistenciaTableService.save(model);
+        return ResponseEntity.ok(result);
     }
 
 }

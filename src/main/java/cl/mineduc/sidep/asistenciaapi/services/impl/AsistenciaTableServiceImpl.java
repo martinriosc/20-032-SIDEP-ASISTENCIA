@@ -137,9 +137,7 @@ public class AsistenciaTableServiceImpl implements AsistenciaTableService {
 
         AsistenciaEntity entity = toEntity(asistencia, calendarioId, matriculaGrupoId);
 
-
         asistenciaTableRepository.update(id, entity);
-
 
         return toModel(entity, asistencia);
     }

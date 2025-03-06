@@ -232,12 +232,12 @@
     </select>
 
     <select id="findByCalendarioAndMatriculaGrupo" resultMap="asistenciaResultMap" parameterType="map">
-        SELECT a.pk_asis_id_asistencia,
+        SELECT a.pk_asis_id_asistencia as id,
                a.asis_fecha_creacion      AS fechaRegistro,
                a.asis_fecha_actualizacion AS fechaActualizacion,
-               a.fk_asis_id_calendario,
-               a.fk_asis_id_matricula_grupo,
-               a.presente,
+               a.fk_asis_id_calendario as calendarioId,
+               a.fk_asis_id_matricula_grupo as matriculaGrupoId,
+               a.presente as presente,
                c.cale_fecha               AS calendarioFecha,
                c.cale_trabajado           AS calendarioTrabajado
         FROM asistencia a

@@ -108,7 +108,7 @@ public class AsistenciaControllerTest {
 
         ResponseEntity<PaginationResultModel<AsistenciaModel>> response =
                 asistenciaController.findAsistenciaPorMesAndDia(
-                        null, null, null, null, null, 12345678L, request
+                        null, null, null, null, null, 12345678L
                 );
 
         assertNotNull(response);
@@ -122,7 +122,7 @@ public class AsistenciaControllerTest {
     public void findAsistenciaPorMesAndDia_exception() {
         when(asistenciaService.findAsistenciaPorMesAndDia(any(), any(), any(), any(), any(), anyLong()))
                 .thenThrow(new SidepException("Error", null));
-        asistenciaController.findAsistenciaPorMesAndDia(null, null, null, null, null, 12345678L, request);
+        asistenciaController.findAsistenciaPorMesAndDia(null, null, null, null, null, 12345678L);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class AsistenciaControllerTest {
         )).thenReturn(PaginationResultModel.<AsistenciaModel>builder().build());
 
         ResponseEntity<PaginationResultModel<AsistenciaModel>> response =
-                asistenciaController.findAsistencia(null,  null, null, 12345678L, request);
+                asistenciaController.findAsistencia(null,  null, null, 12345678L);
 
         assertNotNull(response);
         assertNotNull(response.getBody());
@@ -145,7 +145,7 @@ public class AsistenciaControllerTest {
     public void findAsistencia_exception() {
         when(asistenciaService.findAsistencia(any(), any(), any(), anyLong()))
                 .thenThrow(new SidepException("Error", null));
-        asistenciaController.findAsistencia(null,  null, null, 12345678L, request);
+        asistenciaController.findAsistencia(null,  null, null, 12345678L);
     }
 
     @Test
@@ -159,7 +159,7 @@ public class AsistenciaControllerTest {
         ResponseEntity<PaginationResultModel<AsistenciaModel>> response =
                 asistenciaController.findAllAsistencia("2020-01-01", "2020-12-31",
                         "EstablecimientoX", "RegionX", "ProvinciaX", "ComunaX",
-                        20, 0, request);
+                        20, 0);
 
         assertNotNull(response);
         assertNotNull(response.getBody());
@@ -174,7 +174,7 @@ public class AsistenciaControllerTest {
                 .thenThrow(new SidepException("Error", null));
         asistenciaController.findAllAsistencia("2020-01-01", "2020-12-31",
                 "EstablecimientoX", "RegionX", "ProvinciaX", "ComunaX",
-                20, 0, request);
+                20, 0);
     }
 
     @Test
