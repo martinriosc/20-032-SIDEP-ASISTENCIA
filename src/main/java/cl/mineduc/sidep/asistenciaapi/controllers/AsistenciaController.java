@@ -55,16 +55,16 @@ public class AsistenciaController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/asistencia/peridoDesde/{periodoDesde}/periodoHasta/{periodoHasta}/establecimiento/{establecimiento}/region/{region}/provincia/{provincia}/comuna/{comuna}/pageSize/{pageSize}/pageNumber/{pageNumber}")
+    @GetMapping("/asistencia")
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAllAsistencia(
-            @PathVariable("periodoDesde") String periodoDesde,
-            @PathVariable("periodoHasta") String periodoHasta,
-            @PathVariable("establecimiento") String establecimiento,
-            @PathVariable("region") String region,
-            @PathVariable("provincia") String provincia,
-            @PathVariable("comuna") String comuna,
-            @PathVariable("pageSize") Integer pageSize,
-            @PathVariable("pageNumber") Integer pageNumber) {
+            @RequestParam(name ="periodoDesde", required = false) String periodoDesde,
+            @RequestParam(name ="periodoHasta", required = false) String periodoHasta,
+            @RequestParam(name ="establecimiento", required = false) String establecimiento,
+            @RequestParam(name ="region", required = false) String region,
+            @RequestParam(name ="provincia", required = false) String provincia,
+            @RequestParam(name ="comuna", required = false) String comuna,
+            @RequestParam("pageSize") Integer pageSize,
+            @RequestParam("pageNumber") Integer pageNumber) {
         PaginationResultModel<AsistenciaModel> result = asistenciaService.findAllAsistencia(
                 periodoDesde, periodoHasta, establecimiento, region, provincia, comuna, pageSize, pageNumber);
         return ResponseEntity.ok(result);
