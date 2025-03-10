@@ -59,14 +59,14 @@ public class AsistenciaController {
     public ResponseEntity<PaginationResultModel<AsistenciaModel>> findAllAsistencia(
             @RequestParam(name ="periodoDesde", required = false) String periodoDesde,
             @RequestParam(name ="periodoHasta", required = false) String periodoHasta,
-            @RequestParam(name ="establecimiento", required = false) String establecimiento,
+            @RequestParam(name ="rbd", required = false) String rbd,
             @RequestParam(name ="region", required = false) String region,
             @RequestParam(name ="provincia", required = false) String provincia,
             @RequestParam(name ="comuna", required = false) String comuna,
             @RequestParam("pageSize") Integer pageSize,
             @RequestParam("pageNumber") Integer pageNumber) {
         PaginationResultModel<AsistenciaModel> result = asistenciaService.findAllAsistencia(
-                periodoDesde, periodoHasta, establecimiento, region, provincia, comuna, pageSize, pageNumber);
+                periodoDesde, periodoHasta, rbd, region, provincia, comuna, pageSize, pageNumber);
         return ResponseEntity.ok(result);
     }
 

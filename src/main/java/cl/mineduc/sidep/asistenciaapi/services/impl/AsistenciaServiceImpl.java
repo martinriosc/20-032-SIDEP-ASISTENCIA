@@ -244,7 +244,7 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
     public PaginationResultModel<AsistenciaModel> findAllAsistencia(
             String periodoDesde,
             String periodoHasta,
-            String establecimiento,
+            String rbd,
             String region,
             String provincia,
             String comuna,
@@ -252,13 +252,13 @@ public class AsistenciaServiceImpl implements IAsistenciaService {
             Integer pageNumber
     ) {
         try {
-            log.info("findAllAsistencia: periodoDesde={}, periodoHasta={}, establecimiento={}, region={}, provincia={}, comuna={}, pageSize={}, pageNumber={}",
-                    periodoDesde, periodoHasta, establecimiento, region, provincia, comuna, pageSize, pageNumber);
+            log.info("findAllAsistencia: periodoDesde={}, periodoHasta={}, rbd={}, region={}, provincia={}, comuna={}, pageSize={}, pageNumber={}",
+                    periodoDesde, periodoHasta, rbd, region, provincia, comuna, pageSize, pageNumber);
 
             AsistenciaFilter filter = AsistenciaFilter.builder()
                     .periodoDesde(periodoDesde)
                     .periodoHasta(periodoHasta)
-                    .establecimiento(establecimiento)
+                    .rbd(rbd)
                     .region(region)
                     .provincia(provincia)
                     .comuna(comuna)

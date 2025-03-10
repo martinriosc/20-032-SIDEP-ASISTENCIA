@@ -34,7 +34,7 @@ public interface IAsistenciaService {
      * con paginación.
      */
     PaginationResultModel<AsistenciaModel> findAllAsistencia(String periodoDesde, String periodoHasta,
-                                                             String establecimiento, String region,
+                                                             String rbd, String region,
                                                              String provincia, String comuna,
                                                              Integer pageSize, Integer pageNumber);
 }
